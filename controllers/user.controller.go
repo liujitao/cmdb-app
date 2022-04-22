@@ -5,8 +5,8 @@ import (
 
     "github.com/gin-gonic/gin"
 
-    "cmdb-app/models"
-    "cmdb-app/services"
+    "cmdb-app-mysql/models"
+    "cmdb-app-mysql/services"
 )
 
 type UserController struct {

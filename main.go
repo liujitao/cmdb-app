@@ -5,8 +5,8 @@ import (
     "database/sql"
     "log"
 
-    "cmdb-app/controllers"
-    "cmdb-app/services"
+    "cmdb-app-mysql/controllers"
+    "cmdb-app-mysql/services"
 
     "github.com/gin-gonic/gin"
     _ "github.com/go-sql-driver/mysql"

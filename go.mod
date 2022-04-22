@@ -1,4 +1,4 @@
-module cmdb-app
+module cmdb-app-mysql
 
 go 1.17
 

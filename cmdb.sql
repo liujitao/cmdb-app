@@ -1,9 +1,15 @@
+/*
+CREATE DATABASE `cmdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+GRANT ALL PRIVILEGES ON cmdb.* to 'cmdb'@'127.0.0.1' IDENTIFIED BY 'cmdb';
+FLUSH PRIVILEGES;
+*/
+
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user` (
-  `user_id` varchar(20) NOT NULL COMMENT '用户ID',
+  `id` varchar(20) NOT NULL COMMENT '用户ID',
   `avatar` varchar(255) NOT NULL COMMENT '头像',
   `mobile` varchar(50) NOT NULL COMMENT '手机号码',
   `email` varchar(50) NOT NULL COMMENT '邮箱',
@@ -17,7 +23,7 @@ CREATE TABLE `sys_user` (
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
   `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
   `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
-  PRIMARY KEY (`user_id`) USING BTREE,
+  PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `UK_ulo5s2i7qoksp54tgwl_mobile` (`mobile`) USING BTREE,
   UNIQUE KEY `UK_6ixlo2i7qoksp54tgwl_username` (`user_name`) USING BTREE,
   UNIQUE KEY `UK_6i5ixxs2i7984erhgwl_email` (`email`) USING BTREE
@@ -33,35 +39,34 @@ INSERT INTO `sys_user` VALUES ("5749496392112", 'https://images.xaaef.com/509629
 
 DROP TABLE IF EXISTS `sys_department`;
 CREATE TABLE `sys_department` (
-  `department_id` varchar(20) NOT NULL COMMENT '部门ID',
+  `id` varchar(20) NOT NULL COMMENT '部门ID',
   `department_name` varchar(50) NOT NULL COMMENT '部门名称',
   `parent_id` varchar(20) NOT NULL DEFAULT 0 COMMENT '父主键',
-  `leader` varchar(50) NOT NULL COMMENT '领导名称',
-  `leader_mobile` varchar(50) NOT NULL COMMENT '领导手机号码',
+  `leader_id` varchar(50) NOT NULL COMMENT '领导名称',
   `sort_id` tinyint(4) NOT NULL COMMENT '排序',
   `description` varchar(255) NOT NULL COMMENT '部门描述',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
   `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
   `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
-  PRIMARY KEY (`department_id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10100 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 部门表';
 
-INSERT INTO `sys_department` VALUES ("10001", '铭灏天智能照明', 0, '铭灏天', '15071233333', 1, '铭灏天智能照明设备有限公司', '2021-07-05 15:20:44', "5748354935248", '2021-07-05 15:20:47', "5748354935248");
-INSERT INTO `sys_department` VALUES ("10005", '研发部', "10001", '张三额我去恶趣味', '15071525298', 3, '铭灏天-研发部门', '2021-07-19 10:55:32', "5748354935248", '2022-03-24 16:25:46', "5748354935248");
-INSERT INTO `sys_department` VALUES ("10010", '市场部', "10001", '李四', '18654442486', 2, '市场', '2021-07-29 10:22:18', "5748354935248", '2021-07-29 10:25:42', "5748354935248");
-INSERT INTO `sys_department` VALUES ("10011", '软件组', "10005", '李四', '18711454758', 1, '软件', '2021-07-29 10:58:19', "5748354935248", '2021-07-29 14:36:51', "5748354935248");
+INSERT INTO `sys_department` VALUES ("10001", '铭灏天智能照明', 0, "5748354935248", 1, '铭灏天智能照明设备有限公司', '2021-07-05 15:20:44', "5748354935248", '2021-07-05 15:20:47', "5748354935248");
+INSERT INTO `sys_department` VALUES ("10005", '研发部', "10001", "5748354935250", 3, '铭灏天-研发部门', '2021-07-19 10:55:32', "5748354935248", '2022-03-24 16:25:46', "5748354935248");
+INSERT INTO `sys_department` VALUES ("10010", '市场部', "10001", "5748354935252", 2, '市场', '2021-07-29 10:22:18', "5748354935248", '2021-07-29 10:25:42', "5748354935248");
+INSERT INTO `sys_department` VALUES ("10011", '软件组', "10005", "5748354935253", 1, '软件', '2021-07-29 10:58:19', "5748354935248", '2021-07-29 14:36:51', "5748354935248");
 
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
-  `role_id` varchar(20) NOT NULL COMMENT '角色ID',
+  `id` varchar(20) NOT NULL COMMENT '角色ID',
   `role_name` varchar(255) NOT NULL COMMENT '角色名称',
   `description` varchar(255) NOT NULL COMMENT '角色描述',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
   `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
   `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
-  PRIMARY KEY (`role_id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 角色表';
 
 INSERT INTO `sys_role` VALUES ("10001", 'admin', '管理员', '2021-07-05 15:02:03', "5748354935248", '2021-12-17 09:50:21', "5748354935248");
@@ -71,18 +76,18 @@ INSERT INTO `sys_role` VALUES ("10040", 'TAYG_ADMIN', '天安云谷管理员', '
 
 DROP TABLE IF EXISTS `sys_permission`;
 CREATE TABLE `sys_permission` (
-  `permission_id` varchar(20) NOT NULL COMMENT '菜单ID',
+  `id` varchar(20) NOT NULL COMMENT '菜单ID',
   `title` varchar(100) NOT NULL COMMENT '菜单名称',
   `parent_id` varchar(20) NOT NULL DEFAULT 0 COMMENT '父主键',
   `perms` varchar(255) NOT NULL COMMENT '权限标识',
   `icon` varchar(255) NOT NULL DEFAULT '#' COMMENT '菜单图标',
   `sort_id` tinyint(4) NOT NULL COMMENT '排序',
-  `permission_type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '菜单类型 [ 1.菜单 2.按钮 ]',
+  `permission_type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '菜单类型 [ 0.菜单 1.按钮 ]',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
   `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
   `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
-  PRIMARY KEY (`permission_id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 菜单权限表';
 
 INSERT INTO `sys_permission` VALUES ("10001", '权限管理', 0, 'pre', 'pre', 1, 0, '2021-07-09 12:30:00', "5748354935248", '2021-11-18 09:08:28', "5748354935248");
@@ -169,3 +174,14 @@ CREATE TABLE `sys_user_role` (
 INSERT INTO `sys_user_role` VALUES ("5748354935248", "10001");
 INSERT INTO `sys_user_role` VALUES ("5748354935250", "10038");
 INSERT INTO `sys_user_role` VALUES ("5748354935253", "10039");
+
+DROP TABLE IF EXISTS `sys_user_department`;
+CREATE TABLE `sys_user_department` (
+  `user_id` varchar(20) NOT NULL COMMENT '用户ID',
+  `department_id` varchar(20) NOT NULL COMMENT '部门ID'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 用户和部门表';
+
+INSERT INTO `sys_user_department` VALUES ("5748354935248", "10001");
+INSERT INTO `sys_user_department` VALUES ("5748354935250", "10005");
+INSERT INTO `sys_user_department` VALUES ("5748354935253", "10010");
+INSERT INTO `sys_user_department` VALUES ("5748354935252", "10011");
