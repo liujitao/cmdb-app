@@ -90,8 +90,8 @@ CREATE TABLE `sys_permission` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 菜单权限表';
 
-INSERT INTO `sys_permission` VALUES ("10001", '权限管理', 0, 'pre', 'pre', 1, 0, '2021-07-09 12:30:00', "5748354935248", '2021-11-18 09:08:28', "5748354935248");
-INSERT INTO `sys_permission` VALUES ("10002", '系统管理', 0, 'sys', 'sys', 8, 0, '2021-07-09 12:30:00', "5748354935248", '2021-11-18 09:08:22', "5748354935248");
+INSERT INTO `sys_permission` VALUES ("10001", '权限管理', "", 'pre', 'pre', 1, 0, '2021-07-09 12:30:00', "5748354935248", '2021-11-18 09:08:28', "5748354935248");
+INSERT INTO `sys_permission` VALUES ("10002", '系统管理', "", 'sys', 'sys', 8, 0, '2021-07-09 12:30:00', "5748354935248", '2021-11-18 09:08:22', "5748354935248");
 INSERT INTO `sys_permission` VALUES ("10003", '权限管理', "10001", 'pre_perm', 'pre_perm', 1, 0, '2021-07-09 12:30:00', "5748354935248", '2022-03-24 16:35:18', "5748354935248");
 INSERT INTO `sys_permission` VALUES ("10004", '用户管理', "10001", 'pre_user', 'pre_user', 2, 0, '2021-07-09 12:30:00', "5748354935248", '2022-03-24 16:34:56', "5748354935248");
 INSERT INTO `sys_permission` VALUES ("10005", '角色管理', "10001", 'pre_role', 'pre_role', 3, 0, '2021-07-09 12:30:00', "5748354935248", '2022-03-24 16:35:30', "5748354935248");

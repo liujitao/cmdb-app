@@ -18,7 +18,7 @@ type User struct {
     UpdateUser string       `json:"update_user"`
     Department []Department `json:"department"`
     Role       []Role       `json:"roles"`
-    Menu       []Menu       `json:"menus"`
+    Menu       []*Menu      `json:"menus"`
     Button     []Button     `json:"buttons"`
 }
 

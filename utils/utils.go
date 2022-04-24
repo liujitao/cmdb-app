@@ -1,6 +1,8 @@
 package utils
 
 import (
+    "cmdb-app-mysql/models"
+
     "golang.org/x/crypto/bcrypt"
 )
 
@@ -23,13 +25,15 @@ func VerifyPassword(passwordHash string, password string) error {
 /*
 构建菜单树
 */
-// func BuildMenuTree(menus []*models.Menu, ParentID string) []*models.Menu {
-//     result := []*models.Menu{}
-//     for _, v := range menus {
-//         if v.ParentID == ParentID {
-//             v.Children = BuildMenuTree(v, v.ID)
-//             result = append(result, v)
-//         }
-//     }
-//     return result
-// }
+func BuildMenuTree(items []*models.Menu, parentID string) []*models.Menu {
+    tree := make([]*models.Menu, 0)
+
+    for _, item := range items {
+        if item.ParentID == parentID {
+            item.Children = BuildMenuTree(items, item.ID)
+            tree = append(tree, item)
+        }
+    }
+
+    return tree
+}

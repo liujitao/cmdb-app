@@ -208,8 +208,8 @@ func (u *UserServiceImpl) GetRoleByUserId(id *string) ([]models.Role, error) {
 }
 
 /* 获取用户菜单 */
-func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]models.Menu, error) {
-    var menus []models.Menu
+func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.Menu, error) {
+    var menus []*models.Menu
 
     sql := `
     select b.id, b.parent_id, b.title, b.perms, b.icon, b.sort_id from sys_user a
@@ -225,16 +225,17 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]models.Menu, error) {
 
     defer rows.Close()
     for rows.Next() {
-        var menu models.Menu
+        menu := &models.Menu{}
         if err := rows.Scan(&menu.ID, &menu.ParentID, &menu.Title, &menu.Perms, &menu.Icon, &menu.SortID); err != nil {
             return nil, err
         }
+        menu.Children = nil
         menus = append(menus, menu)
     }
 
-    // menuTree := utils.BuildMenuTree(menus, "")
-    // return menuTree, nil
-    return menus, nil
+    // convert list To tree
+    menuTree := utils.BuildMenuTree(menus, "")
+    return menuTree, nil
 }
 
 /* 获取用户按钮 */
