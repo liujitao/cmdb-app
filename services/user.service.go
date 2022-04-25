@@ -8,6 +8,7 @@ import (
     "cmdb-app-mysql/models"
     "cmdb-app-mysql/utils"
 
+    "github.com/go-redis/redis/v8"
     "github.com/rs/xid"
 )
 
@@ -17,16 +18,24 @@ type UserService interface {
     UpdateUser(*models.User) error
     DeleteUser(*string) error
     GetAllUser() ([]*models.User, error)
+    LoginUser(*models.UserLogin) (*models.Login, error)
+    LogoutUser() error
+    RefreshUser() (*models.Login, error)
+    ReadFromRedis(string) (string, error)
+    WriteToRedis(string, string, time.Duration) error
+    RemoveFromRedis(string) error
 }
 
 type UserServiceImpl struct {
     mysqlClient *sql.DB
+    redisClient *redis.Client
     ctx         context.Context
 }
 
-func NewUserService(mysqlClient *sql.DB, ctx context.Context) UserService {
+func NewUserService(mysqlClient *sql.DB, redisClient *redis.Client, ctx context.Context) UserService {
     return &UserServiceImpl{
         mysqlClient: mysqlClient,
+        redisClient: redisClient,
         ctx:         ctx,
     }
 }
@@ -82,12 +91,12 @@ func (u *UserServiceImpl) GetUser(id *string) (*models.User, error) {
     }
     user.Role = roles
 
-    //获取用户关联菜单
-    menus, err := u.GetMenuByUserId(id)
+    //获取用户关联菜单树
+    menuTree, err := u.GetMenuByUserId(id)
     if err != nil {
         return nil, err
     }
-    user.Menu = menus
+    user.Menu = menuTree
 
     //获取用户关联按钮
     buttons, err := u.GetButtonByUserId(id)
@@ -207,9 +216,9 @@ func (u *UserServiceImpl) GetRoleByUserId(id *string) ([]models.Role, error) {
     return roles, nil
 }
 
-/* 获取用户菜单 */
-func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.Menu, error) {
-    var menus []*models.Menu
+/* 获取用户菜单树 */
+func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error) {
+    var menus []*models.MenuTree
 
     sql := `
     select b.id, b.parent_id, b.title, b.perms, b.icon, b.sort_id from sys_user a
@@ -225,7 +234,7 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.Menu, error) {
 
     defer rows.Close()
     for rows.Next() {
-        menu := &models.Menu{}
+        menu := &models.MenuTree{}
         if err := rows.Scan(&menu.ID, &menu.ParentID, &menu.Title, &menu.Perms, &menu.Icon, &menu.SortID); err != nil {
             return nil, err
         }

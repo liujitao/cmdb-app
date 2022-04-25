@@ -18,16 +18,31 @@ type User struct {
     UpdateUser string       `json:"update_user"`
     Department []Department `json:"department"`
     Role       []Role       `json:"roles"`
-    Menu       []*Menu      `json:"menus"`
+    Menu       []*MenuTree  `json:"menus"`
     Button     []Button     `json:"buttons"`
 }
 
-type UserPassword struct {
-    OldPassword string `json:"oldPassword"`
-    NewPassword string `json:"newPassword"`
+type PasswordChange struct {
+    ID          string `json:"id"`
+    OldPassword string `json:"old_password"`
+    NewPassword string `json:"new_password"`
+}
+
+type PasswordReset struct {
+    ID          string `json:"id"`
+    NewPassword string `json:"new_password"`
 }
 
 type UserLogin struct {
-    LoginID  string `json:"loginID"`
+    LoginID  string `json:"login_id"`
     Password string `json:"password"`
+}
+
+type Login struct {
+    Header               string `json:"header"`
+    Type                 string `json:"token_type"`
+    Token                string `json:"token"`
+    RefreshToken         string `json:"refresh_token"`
+    TokenExpireAt        int64  `json:"token_expire_at"`
+    RefreshTokenExpireAT int64  `json:"refresh_token_expire_at"`
 }

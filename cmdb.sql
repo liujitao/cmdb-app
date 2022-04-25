@@ -17,7 +17,7 @@ CREATE TABLE `sys_user` (
   `password` varchar(255) NOT NULL COMMENT '密码',
   `gender` tinyint(4) NOT NULL COMMENT '性别[ 0.女  1.男  2.未知]',
   `department_id` varchar(20) NOT NULL COMMENT '部门ID',
-  `status` tinyint(1) NOT NULL COMMENT '状态 [ 0.禁用 1.正常 2.锁定 ]',
+  `status` tinyint(1) NOT NULL COMMENT '状态 [ 0.禁用 1.正常 ]',
   `admin_flag` tinyint(1) NOT NULL COMMENT '0. 普通用户  1. 管理员',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',

@@ -87,16 +87,16 @@ func (uc *UserController) GetAllUser(ctx *gin.Context) {
 
 func (uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup) {
     route := rg.Group("/user")
-    // authRoute := rg.Group("/user")
-    // authRoute.Use(authMiddleWare())
+    authRoute := rg.Group("/user")
+    authRoute.Use(uc.AuthMiddleware())
 
     route.POST("/create", uc.CreateUser)
-    route.GET("/get", uc.GetUser)
+    authRoute.GET("/get", uc.GetUser)
     route.PATCH("/update", uc.UpdateUser)
     route.DELETE("/delete", uc.DeleteUser)
     route.GET("/getall", uc.GetAllUser)
 
-    route.POST("/login", uc.CreateUser)
-    route.POST("/logout", uc.CreateUser)
-    route.POST("/fefresh", uc.CreateUser)
+    route.POST("/login", uc.LoginUser)
+    route.POST("/logout", uc.LogoutUser)
+    route.POST("/refresh", uc.CreateUser)
 }

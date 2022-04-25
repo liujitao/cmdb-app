@@ -9,11 +9,14 @@ import (
     "cmdb-app-mysql/services"
 
     "github.com/gin-gonic/gin"
+    "github.com/go-redis/redis/v8"
     _ "github.com/go-sql-driver/mysql"
 )
 
 var (
     mysqlClient *sql.DB
+    redisClient *redis.Client
+    ctx         context.Context
 
     err    error
     server *gin.Engine
@@ -34,11 +37,23 @@ func init() {
         log.Fatal(err.Error())
     }
 
-    log.Printf("mysql connection established")
+    log.Println("mysql connection established")
+
+    // 缓存
+    opt, err := redis.ParseURL("redis://:@localhost:6379/0")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
+
+    ctx = context.Background()
+    redisClient := redis.NewClient(opt)
+    if _, err := redisClient.Ping(ctx).Result(); err != nil {
+        log.Fatal(err.Error())
+    }
+    log.Println("redis connection established")
 
     // 业务
-    ctx := context.Background()
-    userService = services.NewUserService(mysqlClient, ctx)
+    userService = services.NewUserService(mysqlClient, redisClient, ctx)
     userController = controllers.New(userService)
 
     // gin
