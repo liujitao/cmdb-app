@@ -19,8 +19,8 @@ type UserService interface {
     DeleteUser(*string) error
     GetAllUser() ([]*models.User, error)
     LoginUser(*models.UserLogin) (*models.Login, error)
-    LogoutUser() error
-    RefreshUser() (*models.Login, error)
+    LogoutUser(string) error
+    RefreshUser(string) (*models.Login, error)
     ReadFromRedis(string) (string, error)
     WriteToRedis(string, string, time.Duration) error
     RemoveFromRedis(string) error

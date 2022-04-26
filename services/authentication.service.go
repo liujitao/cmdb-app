@@ -3,6 +3,7 @@ package services
 import (
     "cmdb-app-mysql/models"
     "cmdb-app-mysql/utils"
+    "errors"
     "time"
 )
 
@@ -29,7 +30,7 @@ func (u *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, erro
     }
 
     // 生成token
-    login, err := utils.CreateToken(userID, adminFlag)
+    login, err := utils.CreateToken(userID)
     if err != nil {
         return nil, err
     }
@@ -43,13 +44,78 @@ func (u *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, erro
 }
 
 /* 用户注销 */
-func (u *UserServiceImpl) LogoutUser() error {
+func (u *UserServiceImpl) LogoutUser(id string) error {
+    // 查询数据库，用户是否锁定
+    sql := `
+       select status
+       from sys_user
+       where
+           id = ?
+    `
+
+    var status int8
+    row := u.mysqlClient.QueryRowContext(u.ctx, sql, id)
+    if err := row.Scan(&status); err != nil {
+        return err
+    }
+
+    // 查询redis，token是否存在
+    cmd := u.redisClient.Exists(u.ctx, id)
+    if cmd.Err() != nil {
+        return cmd.Err()
+    }
+
+    // 用户锁定状态 or 用户token不存在
+    if status == 0 || cmd.Val() == 0 {
+        return errors.New("用户已经禁用")
+    }
+
+    //移除token
+    if err := u.RemoveFromRedis(id); err != nil {
+        return err
+    }
     return nil
 }
 
 /* 用户刷新 */
-func (u *UserServiceImpl) RefreshUser() (*models.Login, error) {
-    return nil, nil
+func (u *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
+    // 查询数据库，用户是否锁定
+    sql := `
+       select status
+       from sys_user
+       where
+           id = ?
+    `
+
+    var status int8
+    row := u.mysqlClient.QueryRowContext(u.ctx, sql, id)
+    if err := row.Scan(&status); err != nil {
+        return nil, err
+    }
+
+    // 查询redis，token是否存在
+    cmd := u.redisClient.Exists(u.ctx, id)
+    if cmd.Err() != nil {
+        return nil, cmd.Err()
+    }
+
+    // 用户锁定状态 or 用户token存在
+    if status == 0 || cmd.Val() != 0 {
+        return nil, errors.New("用户已经禁用")
+    }
+
+    // 生成token
+    login, err := utils.CreateToken(id)
+    if err != nil {
+        return nil, err
+    }
+
+    // 缓存token
+    if err := u.WriteToRedis(id, login.Token, time.Second*utils.JWT_TOKEN_EXP); err != nil {
+        return nil, err
+    }
+
+    return login, nil
 }
 
 /* 用户变更密码 */

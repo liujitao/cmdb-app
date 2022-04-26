@@ -3,6 +3,7 @@ package utils
 import (
     "cmdb-app-mysql/models"
     "fmt"
+    "strings"
     "time"
 
     "github.com/golang-jwt/jwt"
@@ -32,7 +33,7 @@ const JWT_SECRET_KEY = "$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qh
 const JWT_TOKEN_EXP = 900           // 15分钟
 const JWT_REFRESH_TOKEN_EXP = 86400 // 24小时
 
-func CreateToken(id string, adminFlag int8) (*models.Login, error) {
+func CreateToken(id string) (*models.Login, error) {
     token_exp := time.Now().Add(time.Second * JWT_TOKEN_EXP).Unix()
     refresh_token_exp := time.Now().Add(time.Second * JWT_REFRESH_TOKEN_EXP).Unix()
 
@@ -40,7 +41,6 @@ func CreateToken(id string, adminFlag int8) (*models.Login, error) {
     claims := token.Claims.(jwt.MapClaims)
     claims["id"] = id
     claims["exp"] = token_exp
-    claims["admin"] = adminFlag
     tokenString, err := token.SignedString([]byte(JWT_SECRET_KEY))
     if err != nil {
         return nil, err
@@ -68,9 +68,25 @@ func CreateToken(id string, adminFlag int8) (*models.Login, error) {
 }
 
 /*
-解析token，获得payload值
+从header获得token
 */
-func ParseToken(tokenString string) (jwt.MapClaims, error) {
+func GetTokenFromHeader(header string) string {
+    if header == "" {
+        return ""
+    }
+
+    token := strings.Split(header, " ")
+    if len(token) != 2 || token[0] != "Bearer" {
+        return ""
+    }
+
+    return token[1]
+}
+
+/*
+解析token，获得payload
+*/
+func GetPayloadFromToken(tokenString string) (jwt.MapClaims, error) {
     token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
         if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
             return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])

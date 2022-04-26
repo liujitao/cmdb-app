@@ -98,5 +98,5 @@ func (uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup) {
 
     route.POST("/login", uc.LoginUser)
     route.POST("/logout", uc.LogoutUser)
-    route.POST("/refresh", uc.CreateUser)
+    route.POST("/refresh", uc.RefreshUser)
 }
