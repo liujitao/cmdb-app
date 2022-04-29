@@ -1,12 +1,15 @@
 package controllers
 
 import (
+    "log"
     "net/http"
 
+    "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
 
     "cmdb-app-mysql/models"
     "cmdb-app-mysql/services"
+    "cmdb-app-mysql/utils"
 )
 
 type UserController struct {
@@ -36,15 +39,44 @@ func (uc *UserController) CreateUser(ctx *gin.Context) {
 }
 
 func (uc *UserController) GetUser(ctx *gin.Context) {
-    id := ctx.Query("id")
+    var id string
+    id = ctx.Query("id")
+
+    // id参数为空，获取当前用户信息
+    if len(id) == 0 {
+        // 从header获取token
+        header := ctx.GetHeader("Authorization")
+        token := utils.GetTokenFromHeader(header)
+        if token == "" {
+            ctx.JSON(http.StatusBadRequest, gin.H{"error": "用户token获取失败"})
+            ctx.Abort()
+            return
+        }
+
+        // 从token获取userID
+        payload, _ := utils.GetPayloadFromToken(token)
+        id = payload["id"].(string)
+    }
+
+    log.Println(id)
 
     user, err := uc.UserService.GetUser(&id)
     if err != nil {
-        ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadGateway, response)
         return
     }
 
-    ctx.JSON(http.StatusOK, user)
+    response := gin.H{
+        "code":    20000,
+        "message": "用户信息成功获取",
+        "data":    user,
+    }
+    ctx.JSON(http.StatusOK, response)
 }
 
 func (uc *UserController) UpdateUser(ctx *gin.Context) {
@@ -87,7 +119,10 @@ func (uc *UserController) GetAllUser(ctx *gin.Context) {
 
 func (uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup) {
     route := rg.Group("/user")
+    route.Use(cors.Default())
+
     authRoute := rg.Group("/user")
+    authRoute.Use(cors.Default())
     authRoute.Use(uc.AuthMiddleware())
 
     route.POST("/create", uc.CreateUser)

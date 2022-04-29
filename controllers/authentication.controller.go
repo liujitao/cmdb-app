@@ -9,6 +9,10 @@ import (
 )
 
 /*
+跨域中间件
+*/
+
+/*
 认证中间件
 */
 func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
@@ -17,7 +21,11 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
         header := ctx.GetHeader("Authorization")
         token := utils.GetTokenFromHeader(header)
         if token == "" {
-            ctx.JSON(http.StatusBadRequest, gin.H{"message": "用户token获取失败"})
+            response := gin.H{
+                "code":    10000,
+                "message": "请求参数异常",
+            }
+            ctx.JSON(http.StatusBadRequest, response)
             ctx.Abort()
             return
         }
@@ -28,9 +36,19 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
         // "error": "signature is invalid"
         if err != nil {
             if err.Error() == "Token is expired" {
-                ctx.JSON(http.StatusBadGateway, gin.H{"error": "用户token过期"})
+                response := gin.H{
+                    "code":    50014,
+                    "message": "用户token过期",
+                    "error":   err.Error(),
+                }
+                ctx.JSON(http.StatusBadRequest, response)
             } else {
-                ctx.JSON(http.StatusBadGateway, gin.H{"error": "用户token非法"})
+                response := gin.H{
+                    "code":    50008,
+                    "message": "用户token非法",
+                    "error":   err.Error(),
+                }
+                ctx.JSON(http.StatusBadRequest, response)
             }
             ctx.Abort()
             return
@@ -40,7 +58,12 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
         userID := payload["id"].(string)
         t, err := uc.UserService.ReadFromRedis(userID)
         if err != nil || t != token {
-            ctx.JSON(http.StatusBadRequest, gin.H{"message": "用户token非法"})
+            response := gin.H{
+                "code":    50008,
+                "message": "用户token非法",
+                "error":   err.Error(),
+            }
+            ctx.JSON(http.StatusBadRequest, response)
             ctx.Abort()
             return
         }
@@ -54,18 +77,34 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
 */
 func (uc *UserController) LoginUser(ctx *gin.Context) {
     var user models.UserLogin
+
     if err := ctx.ShouldBindJSON(&user); err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+        response := gin.H{
+            "code":    10000,
+            "message": "请求参数异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadRequest, response)
         return
     }
 
     login, err := uc.UserService.LoginUser(&user)
     if err != nil {
-        ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadGateway, response)
         return
     }
 
-    ctx.JSON(http.StatusOK, login)
+    response := gin.H{
+        "code":    20000,
+        "message": "用户成功登录",
+        "data":    login,
+    }
+    ctx.JSON(http.StatusOK, response)
 }
 
 /*
@@ -76,7 +115,11 @@ func (uc *UserController) LogoutUser(ctx *gin.Context) {
     header := ctx.GetHeader("Authorization")
     token := utils.GetTokenFromHeader(header)
     if token == "" {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "用户token获取失败"})
+        response := gin.H{
+            "code":    10000,
+            "message": "请求参数异常",
+        }
+        ctx.JSON(http.StatusBadRequest, response)
         ctx.Abort()
         return
     }
@@ -86,20 +129,38 @@ func (uc *UserController) LogoutUser(ctx *gin.Context) {
     // "error": "signature is invalid"
     if err != nil {
         if err.Error() == "Token is expired" {
-            ctx.JSON(http.StatusBadGateway, gin.H{"error": "用户token过期"})
+            response := gin.H{
+                "code":    50014,
+                "message": "用户token过期",
+                "error":   err.Error(),
+            }
+            ctx.JSON(http.StatusBadRequest, response)
         } else {
-            ctx.JSON(http.StatusBadGateway, gin.H{"error": "用户token非法"})
+            response := gin.H{
+                "code":    50008,
+                "message": "用户token非法",
+                "error":   err.Error(),
+            }
+            ctx.JSON(http.StatusBadRequest, response)
         }
         ctx.Abort()
         return
     }
 
     if err := uc.UserService.LogoutUser(payload["id"].(string)); err != nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "用户token注销失败"})
+        response := gin.H{
+            "code":    50001,
+            "message": "用户注销失败",
+        }
+        ctx.JSON(http.StatusBadRequest, response)
         return
     }
 
-    ctx.JSON(http.StatusOK, gin.H{"message": "用户成功注销"})
+    response := gin.H{
+        "code":    20000,
+        "message": "用户注销成功",
+    }
+    ctx.JSON(http.StatusOK, response)
 }
 
 /*
@@ -110,7 +171,11 @@ func (uc *UserController) RefreshUser(ctx *gin.Context) {
     header := ctx.GetHeader("Authorization")
     token := utils.GetTokenFromHeader(header)
     if token == "" {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": "用户token获取失败"})
+        response := gin.H{
+            "code":    10000,
+            "message": "请求参数异常",
+        }
+        ctx.JSON(http.StatusBadRequest, response)
         ctx.Abort()
         return
     }
@@ -120,9 +185,19 @@ func (uc *UserController) RefreshUser(ctx *gin.Context) {
     // "error": "signature is invalid"
     if err != nil {
         if err.Error() == "Token is expired" {
-            ctx.JSON(http.StatusBadGateway, gin.H{"error": "用户token过期"})
+            response := gin.H{
+                "code":    50015,
+                "message": "用户refresh_token过期",
+                "error":   err.Error(),
+            }
+            ctx.JSON(http.StatusBadRequest, response)
         } else {
-            ctx.JSON(http.StatusBadGateway, gin.H{"error": "用户token非法"})
+            response := gin.H{
+                "code":    50008,
+                "message": "用户refresh_token非法",
+                "error":   err.Error(),
+            }
+            ctx.JSON(http.StatusBadRequest, response)
         }
         ctx.Abort()
         return
@@ -130,9 +205,18 @@ func (uc *UserController) RefreshUser(ctx *gin.Context) {
 
     refresh, err := uc.UserService.RefreshUser(payload["id"].(string))
     if err != nil {
-        ctx.JSON(http.StatusBadGateway, gin.H{"error": "用户token刷新失败"})
+        response := gin.H{
+            "code":    50002,
+            "message": "用户刷新失败",
+        }
+        ctx.JSON(http.StatusBadRequest, response)
         return
     }
 
-    ctx.JSON(http.StatusOK, refresh)
+    response := gin.H{
+        "code":    20000,
+        "message": "用户刷新成功",
+        "data":    refresh,
+    }
+    ctx.JSON(http.StatusOK, response)
 }

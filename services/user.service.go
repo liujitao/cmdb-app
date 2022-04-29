@@ -167,7 +167,7 @@ func (u *UserServiceImpl) GetDepartmentByUserId(id *string) ([]models.Department
     sql := `
     select b.id, b.department_name from sys_user a
         left join sys_user_department ab on a.id = ab.user_id
-            left join sys_department b on ab.department_id = b.id
+            join sys_department b on ab.department_id = b.id
     where a.id = ?;
     `
 
@@ -195,7 +195,7 @@ func (u *UserServiceImpl) GetRoleByUserId(id *string) ([]models.Role, error) {
     sql := `
     select b.id, b.role_name from sys_user a
         left join sys_user_role ab on a.id = ab.user_id
-            left join sys_role b on ab.role_id = b.id
+            join sys_role b on ab.role_id = b.id
     where a.id = ?;
    `
 
@@ -216,17 +216,26 @@ func (u *UserServiceImpl) GetRoleByUserId(id *string) ([]models.Role, error) {
     return roles, nil
 }
 
-/* 获取用户菜单树 */
+/* 获取用户菜单 */
 func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error) {
     var menus []*models.MenuTree
 
+    //     sql := `
+    //     select b.id, b.parent_id, b.title, b.perms, b.icon, b.sort_id from sys_user a
+    //         left join sys_user_role ac on a.id = ac.user_id
+    //             join sys_role_permission bd on ac.role_id = bd.role_id
+    //                 join sys_permission b on b.id = bd.permission_id
+    //     where b.permission_type = 0 and a.id = ?
+    //    `
+
     sql := `
-    select b.id, b.parent_id, b.title, b.perms, b.icon, b.sort_id from sys_user a
+    select b.id, b.parent_id, b.title, b.name, b.path, b.component, b.redirect, b.icon, b.sort_id from sys_user a
         left join sys_user_role ac on a.id = ac.user_id
-            left join sys_role_permission bd on ac.role_id = bd.role_id
-                left join sys_permission b on b.id = bd.permission_id
+            join sys_role_permission bd on ac.role_id = bd.role_id
+                join sys_permission_new b on b.id = bd.permission_id
     where b.permission_type = 0 and a.id = ?
-   `
+    `
+
     rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
     if err != nil {
         return nil, err
@@ -235,7 +244,8 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error
     defer rows.Close()
     for rows.Next() {
         menu := &models.MenuTree{}
-        if err := rows.Scan(&menu.ID, &menu.ParentID, &menu.Title, &menu.Perms, &menu.Icon, &menu.SortID); err != nil {
+        // if err := rows.Scan(&menu.ID, &menu.ParentID, &menu.Title, &menu.Perms, &menu.Icon, &menu.SortID); err != nil {
+        if err := rows.Scan(&menu.ID, &menu.ParentID, &menu.Title, &menu.Name, &menu.Path, &menu.Component, &menu.Redirect, &menu.Icon, &menu.SortID); err != nil {
             return nil, err
         }
         menu.Children = nil
@@ -250,13 +260,21 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error
 /* 获取用户按钮 */
 func (u *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error) {
     var buttons []models.Button
+    //     sql := `
+    //     select b.id, b.title, b.perms from sys_user a
+    //         left join sys_user_role ac on a.id = ac.user_id
+    //             join sys_role_permission bd on ac.role_id = bd.role_id
+    //                 join sys_permission b on b.id = bd.permission_id
+    //     where b.permission_type = 1 and a.id = ?
+    //    `
+
     sql := `
-    select b.id, b.title, b.perms from sys_user a
+    select b.id, b.title, b.path from sys_user a
         left join sys_user_role ac on a.id = ac.user_id
-            left join sys_role_permission bd on ac.role_id = bd.role_id
-                left join sys_permission b on b.id = bd.permission_id
+            join sys_role_permission bd on ac.role_id = bd.role_id
+                join sys_permission_new b on b.id = bd.permission_id
     where b.permission_type = 1 and a.id = ?
-   `
+    `
 
     rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
     if err != nil {
@@ -266,7 +284,8 @@ func (u *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error)
     defer rows.Close()
     for rows.Next() {
         var button models.Button
-        if err := rows.Scan(&button.ID, &button.Title, &button.Resource); err != nil {
+        // if err := rows.Scan(&button.ID, &button.Title, &button.Resource); err != nil {
+        if err := rows.Scan(&button.ID, &button.Title, &button.Path); err != nil {
             return nil, err
         }
         buttons = append(buttons, button)
