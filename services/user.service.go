@@ -17,7 +17,7 @@ type UserService interface {
     GetUser(*string) (*models.User, error)
     UpdateUser(*models.User) error
     DeleteUser(*string) error
-    GetAllUser() ([]*models.User, error)
+    GetUserList(*string, *string, *string, *string, *string) (*int64, []*models.User, error)
     LoginUser(*models.UserLogin) (*models.Login, error)
     LogoutUser(string) error
     RefreshUser(string) (*models.Login, error)
@@ -138,27 +138,56 @@ func (u *UserServiceImpl) DeleteUser(id *string) error {
 }
 
 /* 获取所有用户 */
-func (u *UserServiceImpl) GetAllUser() ([]*models.User, error) {
+func (u *UserServiceImpl) GetUserList(page *string, limit *string, sort *string, status *string, keyword *string) (*int64, []*models.User, error) {
     var users []*models.User
+    var sql string
+    var total *int64
 
-    sql := `
-    select
-        a.id, a.avatar, a.mobile, a.email, a.user_name, a.password, a.gender, a.status, a.admin_flag, a.create_at, a.create_user, a.update_at, a.update_user
-    from sys_user a
-   `
-    rows, err := u.mysqlClient.QueryContext(u.ctx, sql)
+    sql = `
+    select count(*) from sys_user
+    `
+    row := u.mysqlClient.QueryRowContext(u.ctx, sql)
+    row.Scan(&total)
+    if *total == 0 {
+        return total, nil, nil
+    }
+
+    sql = `
+        select
+            a.id, a.avatar, a.mobile, a.email, a.user_name, a.password, a.gender, a.status, a.admin_flag, a.create_at, a.create_user, a.update_at, a.update_user
+        from sys_user a
+            where id >= (select id from sys_user limit ?, 1)
+        order by ` + *sort +
+        ` limit ?`
+
+    rows, err := u.mysqlClient.QueryContext(u.ctx, sql, page, limit)
     if err != nil {
-        return nil, err
+        return nil, nil, err
     }
 
     defer rows.Close()
     for rows.Next() {
         var user models.User
         rows.Scan(&user.ID, &user.Avatar, &user.Mobile, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Status, &user.AdminFlag, &user.CreateAt, &user.CreateUser, &user.UpdateAt, &user.UpdateUser)
+
+        //获取用户关联部门
+        departments, err := u.GetDepartmentByUserId(&user.ID)
+        if err != nil {
+            return nil, nil, err
+        }
+        user.Department = departments
+
+        //获取用户关联权限
+        roles, err := u.GetRoleByUserId(&user.ID)
+        if err != nil {
+            return nil, nil, err
+        }
+        user.Role = roles
+
         users = append(users, &user)
     }
 
-    return users, nil
+    return total, users, nil
 }
 
 /* 获取用户部门 */
@@ -220,20 +249,13 @@ func (u *UserServiceImpl) GetRoleByUserId(id *string) ([]models.Role, error) {
 func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error) {
     var menus []*models.MenuTree
 
-    //     sql := `
-    //     select b.id, b.parent_id, b.title, b.perms, b.icon, b.sort_id from sys_user a
-    //         left join sys_user_role ac on a.id = ac.user_id
-    //             join sys_role_permission bd on ac.role_id = bd.role_id
-    //                 join sys_permission b on b.id = bd.permission_id
-    //     where b.permission_type = 0 and a.id = ?
-    //    `
-
     sql := `
     select b.id, b.parent_id, b.title, b.name, b.path, b.component, b.redirect, b.icon, b.sort_id from sys_user a
         left join sys_user_role ac on a.id = ac.user_id
             join sys_role_permission bd on ac.role_id = bd.role_id
-                join sys_permission_new b on b.id = bd.permission_id
+                join sys_permission b on b.id = bd.permission_id
     where b.permission_type = 0 and a.id = ?
+    order by b.sort_id
     `
 
     rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
@@ -244,9 +266,15 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error
     defer rows.Close()
     for rows.Next() {
         menu := &models.MenuTree{}
-        // if err := rows.Scan(&menu.ID, &menu.ParentID, &menu.Title, &menu.Perms, &menu.Icon, &menu.SortID); err != nil {
-        if err := rows.Scan(&menu.ID, &menu.ParentID, &menu.Title, &menu.Name, &menu.Path, &menu.Component, &menu.Redirect, &menu.Icon, &menu.SortID); err != nil {
+        meta := &models.Meta{}
+        if err := rows.Scan(&menu.ID, &menu.ParentID, &meta.Title, &menu.Name, &menu.Path, &menu.Component, &menu.Redirect, &meta.Icon, &menu.SortID); err != nil {
             return nil, err
+        }
+
+        if menu.Path == "/" {
+            menu.Meta = nil
+        } else {
+            menu.Meta = meta
         }
         menu.Children = nil
         menus = append(menus, menu)
@@ -260,20 +288,13 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error
 /* 获取用户按钮 */
 func (u *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error) {
     var buttons []models.Button
-    //     sql := `
-    //     select b.id, b.title, b.perms from sys_user a
-    //         left join sys_user_role ac on a.id = ac.user_id
-    //             join sys_role_permission bd on ac.role_id = bd.role_id
-    //                 join sys_permission b on b.id = bd.permission_id
-    //     where b.permission_type = 1 and a.id = ?
-    //    `
-
     sql := `
     select b.id, b.title, b.path from sys_user a
         left join sys_user_role ac on a.id = ac.user_id
             join sys_role_permission bd on ac.role_id = bd.role_id
-                join sys_permission_new b on b.id = bd.permission_id
+                join sys_permission b on b.id = bd.permission_id
     where b.permission_type = 1 and a.id = ?
+    order by b.sort_id
     `
 
     rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
@@ -284,7 +305,6 @@ func (u *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error)
     defer rows.Close()
     for rows.Next() {
         var button models.Button
-        // if err := rows.Scan(&button.ID, &button.Title, &button.Resource); err != nil {
         if err := rows.Scan(&button.ID, &button.Title, &button.Path); err != nil {
             return nil, err
         }

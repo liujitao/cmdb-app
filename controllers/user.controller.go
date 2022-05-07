@@ -1,8 +1,9 @@
 package controllers
 
 import (
-    "log"
     "net/http"
+    "strconv"
+    "strings"
 
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
@@ -58,8 +59,6 @@ func (uc *UserController) GetUser(ctx *gin.Context) {
         id = payload["id"].(string)
     }
 
-    log.Println(id)
-
     user, err := uc.UserService.GetUser(&id)
     if err != nil {
         response := gin.H{
@@ -107,14 +106,54 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, gin.H{"message": "success"})
 }
 
-func (uc *UserController) GetAllUser(ctx *gin.Context) {
-    users, err := uc.UserService.GetAllUser()
+func (uc *UserController) GetUserList(ctx *gin.Context) {
+    var page, limit, sort, status, keyword string
+    page = ctx.DefaultQuery("page", "0")
+    if page != "0" {
+        p, _ := strconv.Atoi(page)
+        page = strconv.Itoa(p - 1)
+    }
+
+    limit = ctx.DefaultQuery("limit", "20")
+
+    sort = ctx.Query("sort")
+    if sort == "" {
+        sort = "id ASC"
+    } else {
+        s := strings.Split(sort, "")
+        if s[0] == "-" {
+            s = append(s[1:], " DESC")
+        } else {
+            s = append(s[1:], " ASC")
+        }
+        sort = strings.Join(s, "")
+    }
+
+    status = ctx.DefaultQuery("status", "")
+    keyword = ctx.DefaultQuery("keyword", "")
+
+    total, users, err := uc.UserService.GetUserList(&page, &limit, &sort, &status, &keyword)
     if err != nil {
-        ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadRequest, response)
         return
     }
 
-    ctx.JSON(http.StatusOK, users)
+    data := gin.H{
+        "total": total,
+        "items": users,
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "用户列表成功获取",
+        "data":    data,
+    }
+    ctx.JSON(http.StatusOK, response)
 }
 
 func (uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup) {
@@ -129,7 +168,7 @@ func (uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup) {
     authRoute.GET("/get", uc.GetUser)
     route.PATCH("/update", uc.UpdateUser)
     route.DELETE("/delete", uc.DeleteUser)
-    route.GET("/getall", uc.GetAllUser)
+    authRoute.GET("/list", uc.GetUserList)
 
     route.POST("/login", uc.LoginUser)
     route.POST("/logout", uc.LogoutUser)

@@ -12,14 +12,14 @@ type User struct {
     Gender     int8         `json:"gender"`
     Status     int8         `json:"status"`
     AdminFlag  int8         `json:"admin_flag"`
-    CreateAt   time.Time    `json:"create_at"`
+    CreateAt   *time.Time   `json:"create_at"`
     CreateUser string       `json:"create_user"`
-    UpdateAt   time.Time    `json:"update_at"`
+    UpdateAt   *time.Time   `json:"update_at"`
     UpdateUser string       `json:"update_user"`
     Department []Department `json:"department"`
     Role       []Role       `json:"roles"`
-    Menu       []*MenuTree  `json:"menus"`
-    Button     []Button     `json:"buttons"`
+    Menu       []*MenuTree  `json:"menus,omitempty"`
+    Button     []Button     `json:"buttons,omitempty"`
 }
 
 type PasswordChange struct {

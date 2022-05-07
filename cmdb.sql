@@ -31,10 +31,10 @@ CREATE TABLE `sys_user` (
 
 INSERT INTO `sys_user` VALUES ('5748354935248', 'https://oss.mhtled.com/avatar/6bcf17f12e524820abb9d983b6384fdc.png', '13910514434', 'admin@abc.com', '管理员', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 0, '10001', 1, 1, '2021-05-14 11:17:33', '5748354935248', '2021-12-17 10:12:24', '5748354935248');
 INSERT INTO `sys_user` VALUES ('5748354935249', 'https://oss.mhtled.com/avatar/69356c4b58014aa5b157229a8953695c.jpg', '15071525231', 'test1@mhtled.com', '测试用户2', '$2a$10$egh4K7nA02uTqzS.wX1rDeiB4NBWgyFqE86WGb7b08d4Vr3IVzSZq', 2, '10005', 0, 0, '2021-05-14 11:17:33', '5748354935248', '2021-12-17 10:12:56', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5748354935250', 'https://oss.mhtled.com/avatar/e28d9e7463a54374905ec297d923f990.jpg', '15071525235', 'doudou@mhtled.com', '王陈陈', '$2a$10$BynoLxqTC0d6WZRnSfmRLeBTtsdM0XZ/rWkmPX.vepX5Y5t0KTF.2', 2, '10005', 1, 0, '2021-05-14 11:17:33', '5748354935248', '2022-02-24 11:58:57', '5748354935248');
+INSERT INTO `sys_user` VALUES ('5748354935250', 'https://oss.mhtled.com/avatar/e28d9e7463a54374905ec297d923f990.jpg', '15071525235', 'doudou@mhtled.com', '王陈陈', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 2, '10005', 1, 0, '2021-05-14 11:17:33', '5748354935248', '2022-02-24 11:58:57', '5748354935248');
 INSERT INTO `sys_user` VALUES ('5748354935251', 'https://oss.mhtled.com/avatar/de422f1053f042d3bbb5f36480095baf.jpg', '18711336565', '1234567890@mhtled.com', 'koushuiwa', '$2a$10$RBhJGpKGthZGb8OZovRd1.14z0XToeyHqOqrvy21DmIhbbEG8U.Ey', 0, '10011', 1, 0, '2021-10-09 09:38:09', '5748354935248', '2021-12-17 10:13:26', '5748354935248');
 INSERT INTO `sys_user` VALUES ('5748354935252', 'https://oss.mhtled.com/avatar/9e29bef889db433f91f9d7edf26c7aa8.jpg', '18682035178', '42199386@mhtled.com', 'Yang Jian Ming', '$2a$10$HOyIJ.RQlQk4srEO62H/xuFLccMKpogBrIvlf7zXoCFh0eeULp586', 0, '10011', 1, 0, '2021-11-01 09:44:01', '5748354935248', '2021-12-17 10:13:31', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5748354935253', 'https://oss.mhtled.com/image/mhtled_logo.png', '15222222222', '15222222222@mhtled.com', '张瑶', '$2a$10$1MOdYoqP8aZtRLiS97etaee4Rl6ZXYOkMadJSBJrMMQTY/3fJQocq', 1, '10011', 1, 0, '2021-11-23 15:03:13', '5748354935248', '2022-03-25 14:26:09', '5748354935248');
+INSERT INTO `sys_user` VALUES ('5748354935253', 'https://oss.mhtled.com/image/mhtled_logo.png', '15222222222', 'zhangyao@mhtled.com', '张瑶', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 1, '10011', 1, 0, '2021-11-23 15:03:13', '5748354935248', '2022-03-25 14:26:09', '5748354935248');
 INSERT INTO `sys_user` VALUES ('5749496392112', 'https://images.xaaef.com/5096297972b0469f80467771ba9c0fda.jpg', '15071525332', 'nihaoya123@qq.com', '你好呀', '$2a$10$5Vxu.lkpQT9awGBm/Uh3UOFs7DlMp9qL8b1zO.lfiJN2DbYn.eD5S', 1, '10010', 1, 0, '2022-03-25 11:21:39', '5748354935248', '2022-03-25 11:21:39', '5748354935248');
 
 DROP TABLE IF EXISTS `sys_department`;
@@ -79,50 +79,6 @@ CREATE TABLE `sys_permission` (
   `id` varchar(20) NOT NULL COMMENT '菜单ID',
   `title` varchar(100) NOT NULL COMMENT '菜单名称',
   `parent_id` varchar(20) NOT NULL DEFAULT 0 COMMENT '父主键',
-  `perms` varchar(255) NOT NULL COMMENT '权限标识',
-  `icon` varchar(255) NOT NULL DEFAULT '#' COMMENT '菜单图标',
-  `sort_id` tinyint(4) NOT NULL COMMENT '排序',
-  `permission_type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '菜单类型 [ 0.菜单 1.按钮 ]',
-  `create_at` datetime NOT NULL COMMENT '创建时间',
-  `create_user` varchar(20) NOT NULL COMMENT '创建人',
-  `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
-  `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 菜单权限表';
-
-INSERT INTO `sys_permission` VALUES ('10001', '权限管理', '', 'pre', 'pre', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:28', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10002', '系统管理', '', 'sys', 'sys', 8, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10003', '权限管理', '10001', 'pre_perm', 'pre_perm', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:18', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10004', '用户管理', '10001', 'pre_user', 'pre_user', 2, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:34:56', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10005', '角色管理', '10001', 'pre_role', 'pre_role', 3, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:30', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10007', '部门管理', '10001', 'pre_dept', 'pre_dept', 4, 0, '2021-07-09 12:30:00', '5748354935248', '2021-07-27 16:46:09', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10066', '修改', '10003', 'pre_perm:update', '', 4, 1, '2022-03-25 13:50:51', '5748354935248', '2022-03-25 14:09:47', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10067', '添加', '10003', 'pre_perm:create', '', 2, 1, '2022-03-25 13:51:35', '5748354935248', '2022-03-25 13:52:39', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10068', '删除', '10003', 'pre_perm:delete', '', 3, 1, '2022-03-25 13:51:56', '5748354935248', '2022-03-25 13:52:46', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10069', '新增', '10004', 'pre_user:create', '', 6, 1, '2022-03-25 13:53:38', '5748354935248', '2022-03-25 14:10:06', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10070', '修改角色', '10004', 'pre_user:update:roles', '', 2, 1, '2022-03-25 13:54:15', '5748354935248', '2022-03-25 13:54:15', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10071', '修改', '10004', 'pre_user:update', '', 3, 1, '2022-03-25 13:54:40', '5748354935248', '2022-03-25 13:55:43', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10072', '删除', '10004', 'pre_user:delete', '', 4, 1, '2022-03-25 13:54:58', '5748354935248', '2022-03-25 13:55:57', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10073', '重置密码', '10004', 'pre_user:reset:password', '', 5, 1, '2022-03-25 13:55:20', '5748354935248', '2022-03-25 13:55:20', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10074', '新增', '10005', 'pre_role:create', '', 5, 1, '2022-03-25 13:56:51', '5748354935248', '2022-03-25 14:10:33', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10075', '修改', '10005', 'pre_role:update', '', 2, 1, '2022-03-25 13:57:25', '5748354935248', '2022-03-25 13:57:25', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10076', '删除', '10005', 'pre_role:delete', '', 3, 1, '2022-03-25 13:57:43', '5748354935248', '2022-03-25 13:57:43', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10077', '修改权限', '10005', 'pre_role:update:permissions', '', 4, 1, '2022-03-25 13:58:03', '5748354935248', '2022-03-25 13:58:03', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10078', '新增', '10007', 'pre_dept:create', '', 5, 1, '2022-03-25 13:58:58', '5748354935248', '2022-03-25 14:13:01', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10079', '修改', '10007', 'pre_dept:update', '', 2, 1, '2022-03-25 13:59:08', '5748354935248', '2022-03-25 13:59:08', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10080', '删除', '10007', 'pre_dept:delete', '', 3, 1, '2022-03-25 13:59:22', '5748354935248', '2022-03-25 13:59:22', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10081', '修改权限', '10007', 'pre_dept:update:permissions', '', 4, 1, '2022-03-25 14:00:05', '5748354935248', '2022-03-25 14:00:05', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10082', '视图', '10003', 'pre_perm:view', '', 1, 1, '2022-03-25 14:05:50', '5748354935248', '2022-03-25 14:09:31', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10083', '视图', '10004', 'pre_user:view', '', 1, 1, '2022-03-25 14:06:20', '5748354935248', '2022-03-25 14:09:57', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10084', '视图', '10005', 'pre_role:view', '', 1, 1, '2022-03-25 14:06:44', '5748354935248', '2022-03-25 14:10:15', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10085', '视图', '10007', 'pre_dept:view', '', 1, 1, '2022-03-25 14:07:13', '5748354935248', '2022-03-25 14:10:40', '5748354935248');
-
-
-DROP TABLE IF EXISTS `sys_permission_new`;
-CREATE TABLE `sys_permission_new` (
-  `id` varchar(20) NOT NULL COMMENT '菜单ID',
-  `title` varchar(100) NOT NULL COMMENT '菜单名称',
-  `parent_id` varchar(20) NOT NULL DEFAULT 0 COMMENT '父主键',
   `name` varchar(255) NOT NULL COMMENT '名称',
   `path` varchar(255) NOT NULL COMMENT '路径',
   `component` varchar(255) NOT NULL COMMENT '组件',
@@ -137,38 +93,42 @@ CREATE TABLE `sys_permission_new` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 菜单权限表';
 
-INSERT INTO `sys_permission_new` VALUES ('10001', '系统管理', '', 'Sys', '/sys', 'Layout', '/sys/menu', 'el-icon-s-tools', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:28', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10000', '', '', 'Home', '/', 'Layout', '/dashboard', '', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:28', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10051', '首页', '10000', 'Dashboard', '/dashboard', 'views/dashboard/index', '', 'dashboard', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:28', '5748354935248');
 
-INSERT INTO `sys_permission_new` VALUES ('10003', '菜单管理', '10001', 'SysMenu', '/sys/menu', 'sys/menu/index', '', 'el-icon-s-tools', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:18', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10004', '用户管理', '10001', 'SysUser', '/sys/user', 'sys/user/index', '', 'el-icon-s-tools', 2, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:34:56', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10005', '角色管理', '10001', 'SysRole', '/sys/role', 'sys/role/index', '', 'el-icon-s-tools', 3, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:30', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10007', '部门管理', '10001', 'SysDepartment', '/sys/department', 'sys/department/index', '', 'el-icon-s-tools', 4, 0, '2021-07-09 12:30:00', '5748354935248', '2021-07-27 16:46:09', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10002', '文章管理', '', 'Article', '/article', 'Layout', '/article/list', 'el-icon-document', 2, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10052', '文章管理', '10002', 'ArticleList', '/article/list', 'views/article/index', '', '', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10053', '文章分类', '10002', 'ArticleCategory', '/article/category', 'views/article/category', '', '', 2, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
 
-INSERT INTO `sys_permission_new` VALUES ('10082', '视图', '10003', '', '/sys/menu/menus/get', '', '', '', 1, 1, '2022-03-25 14:05:50', '5748354935248', '2022-03-25 14:09:31', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10066', '新增', '10003', '', '/sys/menu/menus/post', '', '', '', 4, 1, '2022-03-25 13:50:51', '5748354935248', '2022-03-25 14:09:47', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10067', '修改', '10003', '', '/sys/menu/menus/patch', '', '', '', 2, 1, '2022-03-25 13:51:35', '5748354935248', '2022-03-25 13:52:39', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10068', '删除', '10003', '', '/sys/menu/menus/delete', '', '', '', 3, 1, '2022-03-25 13:51:56', '5748354935248', '2022-03-25 13:52:46', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10001', '系统管理', '', 'Setting', '/setting', 'Layout', '/setting/user', 'el-icon-s-tools', 9, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:28', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10004', '用户管理', '10001', 'SettingUser', '/setting/user', 'views/user/index', '', '', 1, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:34:56', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10005', '角色管理', '10001', 'SettingRole', '/settting/role', 'views/role/index', '', '', 2, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:30', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10007', '部门管理', '10001', 'SysDepartment', '/sys/department', 'sys/department/index', '', '', 3, 0, '2021-07-09 12:30:00', '5748354935248', '2021-07-27 16:46:09', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10003', '菜单管理', '10001', 'SettingMenu', '/setting/menu', 'views/menu/index', '', '', 4, 0, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:18', '5748354935248');
 
-INSERT INTO `sys_permission_new` VALUES ('10083', '视图', '10004', '', '/sys/user/users/get', '', '', '', 1, 1, '2022-03-25 14:06:20', '5748354935248', '2022-03-25 14:09:57', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10069', '新增', '10004', '', '/sys/user/users/post', '', '', '', 6, 1, '2022-03-25 13:53:38', '5748354935248', '2022-03-25 14:10:06', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10071', '修改', '10004', '', '/sys/user/users/patch', '', '', '', 3, 1, '2022-03-25 13:54:40', '5748354935248', '2022-03-25 13:55:43', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10072', '删除', '10004', '', '/sys/user/users/delete', '', '', '', 4, 1, '2022-03-25 13:54:58', '5748354935248', '2022-03-25 13:55:57', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10070', '修改角色', '10004', '', '/sys/user/users/role', '', '', '', 2, 1, '2022-03-25 13:54:15', '5748354935248', '2022-03-25 13:54:15', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10073', '重置密码', '10004', '', '/sys/user/users/password', '', '', '', 5, 1, '2022-03-25 13:55:20', '5748354935248', '2022-03-25 13:55:20', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10082', '视图', '10003', '', '/setting/menu/menus/get', '', '', '', 1, 1, '2022-03-25 14:05:50', '5748354935248', '2022-03-25 14:09:31', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10066', '新增', '10003', '', '/setting/menu/menus/post', '', '', '', 4, 1, '2022-03-25 13:50:51', '5748354935248', '2022-03-25 14:09:47', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10067', '修改', '10003', '', '/setting/menu/menus/patch', '', '', '', 2, 1, '2022-03-25 13:51:35', '5748354935248', '2022-03-25 13:52:39', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10068', '删除', '10003', '', '/setting/menu/menus/delete', '', '', '', 3, 1, '2022-03-25 13:51:56', '5748354935248', '2022-03-25 13:52:46', '5748354935248');
 
-INSERT INTO `sys_permission_new` VALUES ('10084', '视图', '10005', '', '/sys/role/roles/get', '', '', '', 1, 1, '2022-03-25 14:06:44', '5748354935248', '2022-03-25 14:10:15', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10074', '新增', '10005', '', '/sys/role/roles/post', '', '', '', 5, 1, '2022-03-25 13:56:51', '5748354935248', '2022-03-25 14:10:33', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10075', '修改', '10005', '', '/sys/role/roles/patch', '', '', '', 2, 1, '2022-03-25 13:57:25', '5748354935248', '2022-03-25 13:57:25', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10076', '删除', '10005', '', '/sys/role/roles/delete', '', '', '', 3, 1, '2022-03-25 13:57:43', '5748354935248', '2022-03-25 13:57:43', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10077', '修改权限', '10005', '', '/sys/role/roles/permission', '', '', '', 4, 1, '2022-03-25 13:58:03', '5748354935248', '2022-03-25 13:58:03', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10083', '视图', '10004', '', '/setting/user/users/get', '', '', '', 1, 1, '2022-03-25 14:06:20', '5748354935248', '2022-03-25 14:09:57', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10069', '新增', '10004', '', '/setting/user/users/post', '', '', '', 6, 1, '2022-03-25 13:53:38', '5748354935248', '2022-03-25 14:10:06', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10071', '修改', '10004', '', '/setting/user/users/patch', '', '', '', 3, 1, '2022-03-25 13:54:40', '5748354935248', '2022-03-25 13:55:43', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10072', '删除', '10004', '', '/setting/user/users/delete', '', '', '', 4, 1, '2022-03-25 13:54:58', '5748354935248', '2022-03-25 13:55:57', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10070', '修改角色', '10004', '', '/setting/user/users/role', '', '', '', 2, 1, '2022-03-25 13:54:15', '5748354935248', '2022-03-25 13:54:15', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10073', '重置密码', '10004', '', '/setting/user/users/password', '', '', '', 5, 1, '2022-03-25 13:55:20', '5748354935248', '2022-03-25 13:55:20', '5748354935248');
 
-INSERT INTO `sys_permission_new` VALUES ('10085', '视图', '10007', '', '/sys/department/departments/get', '', '', '', 1, 1, '2022-03-25 14:07:13', '5748354935248', '2022-03-25 14:10:40', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10078', '新增', '10007', '', '/sys/department/departments/post', '', '', '', 5, 1, '2022-03-25 13:58:58', '5748354935248', '2022-03-25 14:13:01', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10079', '修改', '10007', '', '/sys/department/departments/patch', '', '', '', 2, 1, '2022-03-25 13:59:08', '5748354935248', '2022-03-25 13:59:08', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10080', '删除', '10007', '', '/sys/department/departments/delete', '', '', '', 3, 1, '2022-03-25 13:59:22', '5748354935248', '2022-03-25 13:59:22', '5748354935248');
-INSERT INTO `sys_permission_new` VALUES ('10081', '修改权限', '10007','', '/sys/department/departments/permission', '', '', '', 4, 1, '2022-03-25 14:00:05', '5748354935248', '2022-03-25 14:00:05', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10084', '视图', '10005', '', '/setting/role/roles/get', '', '', '', 1, 1, '2022-03-25 14:06:44', '5748354935248', '2022-03-25 14:10:15', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10074', '新增', '10005', '', '/setting/role/roles/post', '', '', '', 5, 1, '2022-03-25 13:56:51', '5748354935248', '2022-03-25 14:10:33', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10075', '修改', '10005', '', '/setting/role/roles/patch', '', '', '', 2, 1, '2022-03-25 13:57:25', '5748354935248', '2022-03-25 13:57:25', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10076', '删除', '10005', '', '/setting/role/roles/delete', '', '', '', 3, 1, '2022-03-25 13:57:43', '5748354935248', '2022-03-25 13:57:43', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10077', '修改权限', '10005', '', '/setting/role/roles/permission', '', '', '', 4, 1, '2022-03-25 13:58:03', '5748354935248', '2022-03-25 13:58:03', '5748354935248');
 
-INSERT INTO `sys_permission_new` VALUES ('10002', '文章管理', '', 'Article', '/article', 'Layout', '/sys/article', '', 8, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10085', '视图', '10007', '', '/setting/department/departments/get', '', '', '', 1, 1, '2022-03-25 14:07:13', '5748354935248', '2022-03-25 14:10:40', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10078', '新增', '10007', '', '/setting/department/departments/post', '', '', '', 5, 1, '2022-03-25 13:58:58', '5748354935248', '2022-03-25 14:13:01', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10079', '修改', '10007', '', '/setting/department/departments/patch', '', '', '', 2, 1, '2022-03-25 13:59:08', '5748354935248', '2022-03-25 13:59:08', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10080', '删除', '10007', '', '/setting/department/departments/delete', '', '', '', 3, 1, '2022-03-25 13:59:22', '5748354935248', '2022-03-25 13:59:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10081', '修改权限', '10007','', '/setting/department/departments/permission', '', '', '', 4, 1, '2022-03-25 14:00:05', '5748354935248', '2022-03-25 14:00:05', '5748354935248');
 
 DROP TABLE IF EXISTS `sys_department_permission`;
 CREATE TABLE `sys_department_permission` (
@@ -182,6 +142,9 @@ CREATE TABLE `sys_role_permission` (
   `permission_id` varchar(20) NOT NULL COMMENT '菜单ID'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 角色和菜单权限表';
 
+INSERT INTO `sys_role_permission` VALUES ('10038', '10000');
+INSERT INTO `sys_role_permission` VALUES ('10038', '10051');
+
 INSERT INTO `sys_role_permission` VALUES ('10038', '10001');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10082');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10083');
@@ -191,9 +154,17 @@ INSERT INTO `sys_role_permission` VALUES ('10038', '10004');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10085');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10005');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10007');
-INSERT INTO `sys_role_permission` VALUES ('10039', '10002');
+
+INSERT INTO `sys_role_permission` VALUES ('10039', '10000');
+INSERT INTO `sys_role_permission` VALUES ('10039', '10051');
+
+INSERT INTO `sys_role_permission` VALUES ('10001', '10000');
+INSERT INTO `sys_role_permission` VALUES ('10001', '10051');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10001');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10066');
+INSERT INTO `sys_role_permission` VALUES ('10001', '10002');
+INSERT INTO `sys_role_permission` VALUES ('10001', '10052');
+INSERT INTO `sys_role_permission` VALUES ('10001', '10053');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10003');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10067');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10068');

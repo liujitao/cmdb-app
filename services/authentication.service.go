@@ -15,8 +15,7 @@ func (u *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, erro
     sql := `
     select id, password, admin_flag
     from sys_user
-    where
-        email = ? or mobile = ? and status = 1
+    where email = ? or mobile = ? and status = 1
     `
 
     row := u.mysqlClient.QueryRowContext(u.ctx, sql, user.LoginID, user.LoginID)
@@ -80,12 +79,7 @@ func (u *UserServiceImpl) LogoutUser(id string) error {
 /* 用户刷新 */
 func (u *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
     // 查询数据库，用户是否锁定
-    sql := `
-       select status
-       from sys_user
-       where
-           id = ?
-    `
+    sql := `select status from sys_user where id = ?`
 
     var status int8
     row := u.mysqlClient.QueryRowContext(u.ctx, sql, id)
@@ -93,14 +87,7 @@ func (u *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
         return nil, err
     }
 
-    // 查询redis，token是否存在
-    cmd := u.redisClient.Exists(u.ctx, id)
-    if cmd.Err() != nil {
-        return nil, cmd.Err()
-    }
-
-    // 用户锁定状态 or 用户token存在
-    if status == 0 || cmd.Val() != 0 {
+    if status == 0 {
         return nil, errors.New("用户已经禁用")
     }
 

@@ -41,14 +41,14 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
                     "message": "用户token过期",
                     "error":   err.Error(),
                 }
-                ctx.JSON(http.StatusBadRequest, response)
+                ctx.JSON(http.StatusUnauthorized, response)
             } else {
                 response := gin.H{
                     "code":    50008,
                     "message": "用户token非法",
                     "error":   err.Error(),
                 }
-                ctx.JSON(http.StatusBadRequest, response)
+                ctx.JSON(http.StatusUnauthorized, response)
             }
             ctx.Abort()
             return
@@ -63,7 +63,7 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
                 "message": "用户token非法",
                 "error":   err.Error(),
             }
-            ctx.JSON(http.StatusBadRequest, response)
+            ctx.JSON(http.StatusUnauthorized, response)
             ctx.Abort()
             return
         }
@@ -134,14 +134,14 @@ func (uc *UserController) LogoutUser(ctx *gin.Context) {
                 "message": "用户token过期",
                 "error":   err.Error(),
             }
-            ctx.JSON(http.StatusBadRequest, response)
+            ctx.JSON(http.StatusUnauthorized, response)
         } else {
             response := gin.H{
                 "code":    50008,
                 "message": "用户token非法",
                 "error":   err.Error(),
             }
-            ctx.JSON(http.StatusBadRequest, response)
+            ctx.JSON(http.StatusUnauthorized, response)
         }
         ctx.Abort()
         return
@@ -149,7 +149,7 @@ func (uc *UserController) LogoutUser(ctx *gin.Context) {
 
     if err := uc.UserService.LogoutUser(payload["id"].(string)); err != nil {
         response := gin.H{
-            "code":    50001,
+            "code":    10000,
             "message": "用户注销失败",
         }
         ctx.JSON(http.StatusBadRequest, response)
@@ -190,14 +190,14 @@ func (uc *UserController) RefreshUser(ctx *gin.Context) {
                 "message": "用户refresh_token过期",
                 "error":   err.Error(),
             }
-            ctx.JSON(http.StatusBadRequest, response)
+            ctx.JSON(http.StatusUnauthorized, response)
         } else {
             response := gin.H{
                 "code":    50008,
                 "message": "用户refresh_token非法",
                 "error":   err.Error(),
             }
-            ctx.JSON(http.StatusBadRequest, response)
+            ctx.JSON(http.StatusUnauthorized, response)
         }
         ctx.Abort()
         return
@@ -206,8 +206,9 @@ func (uc *UserController) RefreshUser(ctx *gin.Context) {
     refresh, err := uc.UserService.RefreshUser(payload["id"].(string))
     if err != nil {
         response := gin.H{
-            "code":    50002,
+            "code":    10000,
             "message": "用户刷新失败",
+            "error":   err.Error(),
         }
         ctx.JSON(http.StatusBadRequest, response)
         return
