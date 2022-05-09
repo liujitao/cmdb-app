@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type Menu struct {
+type Permission struct {
     ID         string     `json:"id"`
     ParentID   string     `json:"parent_id"`
     Title      string     `json:"title"`
@@ -18,11 +18,6 @@ type Menu struct {
     UpdateUser string     `json:"update_user,omitempty"`
 }
 
-type Meta struct {
-    Title string `json:"title,omitempty"`
-    Icon  string `json:"icon,omitempty"`
-}
-
 type MenuTree struct {
     ID        string      `json:"id"`
     ParentID  string      `json:"parent_id"`
@@ -33,6 +28,11 @@ type MenuTree struct {
     Redirect  string      `json:"redirect"`
     SortID    int8        `json:"sort_id"`
     Children  []*MenuTree `json:"children,omitempty"`
+}
+
+type Meta struct {
+    Title string `json:"title,omitempty"`
+    Icon  string `json:"icon,omitempty"`
 }
 
 type Button struct {

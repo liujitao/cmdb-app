@@ -8,7 +8,7 @@ import (
 )
 
 /* 用户登录 */
-func (u *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, error) {
+func (us *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, error) {
     var userID, hashPassword string
     var adminFlag int8
 
@@ -18,7 +18,7 @@ func (u *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, erro
     where email = ? or mobile = ? and status = 1
     `
 
-    row := u.mysqlClient.QueryRowContext(u.ctx, sql, user.LoginID, user.LoginID)
+    row := us.mysqlClient.QueryRowContext(us.ctx, sql, user.LoginID, user.LoginID)
     if err := row.Scan(&userID, &hashPassword, &adminFlag); err != nil {
         return nil, err
     }
@@ -35,7 +35,7 @@ func (u *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, erro
     }
 
     // 缓存token
-    if err := u.WriteToRedis(userID, login.Token, time.Second*utils.JWT_TOKEN_EXP); err != nil {
+    if err := us.WriteToRedis(userID, login.Token, time.Second*utils.JWT_TOKEN_EXP); err != nil {
         return nil, err
     }
 
@@ -43,7 +43,7 @@ func (u *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, erro
 }
 
 /* 用户注销 */
-func (u *UserServiceImpl) LogoutUser(id string) error {
+func (us *UserServiceImpl) LogoutUser(id string) error {
     // 查询数据库，用户是否锁定
     sql := `
        select status
@@ -53,13 +53,13 @@ func (u *UserServiceImpl) LogoutUser(id string) error {
     `
 
     var status int8
-    row := u.mysqlClient.QueryRowContext(u.ctx, sql, id)
+    row := us.mysqlClient.QueryRowContext(us.ctx, sql, id)
     if err := row.Scan(&status); err != nil {
         return err
     }
 
     // 查询redis，token是否存在
-    cmd := u.redisClient.Exists(u.ctx, id)
+    cmd := us.redisClient.Exists(us.ctx, id)
     if cmd.Err() != nil {
         return cmd.Err()
     }
@@ -70,19 +70,19 @@ func (u *UserServiceImpl) LogoutUser(id string) error {
     }
 
     //移除token
-    if err := u.RemoveFromRedis(id); err != nil {
+    if err := us.RemoveFromRedis(id); err != nil {
         return err
     }
     return nil
 }
 
 /* 用户刷新 */
-func (u *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
+func (us *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
     // 查询数据库，用户是否锁定
     sql := `select status from sys_user where id = ?`
 
     var status int8
-    row := u.mysqlClient.QueryRowContext(u.ctx, sql, id)
+    row := us.mysqlClient.QueryRowContext(us.ctx, sql, id)
     if err := row.Scan(&status); err != nil {
         return nil, err
     }
@@ -98,7 +98,7 @@ func (u *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
     }
 
     // 缓存token
-    if err := u.WriteToRedis(id, login.Token, time.Second*utils.JWT_TOKEN_EXP); err != nil {
+    if err := us.WriteToRedis(id, login.Token, time.Second*utils.JWT_TOKEN_EXP); err != nil {
         return nil, err
     }
 
@@ -106,18 +106,18 @@ func (u *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
 }
 
 /* 用户变更密码 */
-func (u *UserServiceImpl) ChangePassword(user *models.PasswordChange) error {
+func (us *UserServiceImpl) ChangePassword(user *models.PasswordChange) error {
     return nil
 }
 
 /* 用户重置密码 */
-func (u *UserServiceImpl) ResetPassword(user *models.PasswordReset) error {
+func (us *UserServiceImpl) ResetPassword(user *models.PasswordReset) error {
     return nil
 }
 
 /* 从redis获取token */
-func (u *UserServiceImpl) ReadFromRedis(key string) (string, error) {
-    cmd := u.redisClient.Get(u.ctx, key)
+func (us *UserServiceImpl) ReadFromRedis(key string) (string, error) {
+    cmd := us.redisClient.Get(us.ctx, key)
     if cmd.Err() != nil {
         return "", cmd.Err()
     }
@@ -126,16 +126,16 @@ func (u *UserServiceImpl) ReadFromRedis(key string) (string, error) {
 }
 
 /* 向redis写入token */
-func (u *UserServiceImpl) WriteToRedis(key string, value string, expiration time.Duration) error {
-    if err := u.redisClient.Set(u.ctx, key, value, expiration).Err(); err != nil {
+func (us *UserServiceImpl) WriteToRedis(key string, value string, expiration time.Duration) error {
+    if err := us.redisClient.Set(us.ctx, key, value, expiration).Err(); err != nil {
         return err
     }
     return nil
 }
 
 /* 从redis删除token */
-func (u *UserServiceImpl) RemoveFromRedis(key string) error {
-    if err := u.redisClient.Del(u.ctx, key).Err(); err != nil {
+func (us *UserServiceImpl) RemoveFromRedis(key string) error {
+    if err := us.redisClient.Del(us.ctx, key).Err(); err != nil {
         return err
     }
     return nil

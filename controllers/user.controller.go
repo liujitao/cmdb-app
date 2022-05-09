@@ -5,7 +5,6 @@ import (
     "strconv"
     "strings"
 
-    "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
 
     "cmdb-app-mysql/models"
@@ -17,7 +16,7 @@ type UserController struct {
     UserService services.UserService
 }
 
-func New(userSerivce services.UserService) UserController {
+func NewUserController(userSerivce services.UserService) UserController {
     return UserController{
         UserService: userSerivce,
     }
@@ -154,23 +153,4 @@ func (uc *UserController) GetUserList(ctx *gin.Context) {
         "data":    data,
     }
     ctx.JSON(http.StatusOK, response)
-}
-
-func (uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup) {
-    route := rg.Group("/user")
-    route.Use(cors.Default())
-
-    authRoute := rg.Group("/user")
-    authRoute.Use(cors.Default())
-    authRoute.Use(uc.AuthMiddleware())
-
-    route.POST("/create", uc.CreateUser)
-    authRoute.GET("/get", uc.GetUser)
-    route.PATCH("/update", uc.UpdateUser)
-    route.DELETE("/delete", uc.DeleteUser)
-    authRoute.GET("/list", uc.GetUserList)
-
-    route.POST("/login", uc.LoginUser)
-    route.POST("/logout", uc.LogoutUser)
-    route.POST("/refresh", uc.RefreshUser)
 }

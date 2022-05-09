@@ -9,10 +9,6 @@ import (
 )
 
 /*
-跨域中间件
-*/
-
-/*
 认证中间件
 */
 func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
@@ -57,11 +53,19 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
         // 2. 判断token注销
         userID := payload["id"].(string)
         t, err := uc.UserService.ReadFromRedis(userID)
-        if err != nil || t != token {
+        if err != nil {
             response := gin.H{
-                "code":    50008,
-                "message": "用户token非法",
+                "code":    10000,
+                "message": "服务处理异常",
                 "error":   err.Error(),
+            }
+            ctx.JSON(http.StatusBadGateway, response)
+            ctx.Abort()
+            return
+        } else if t != token {
+            response := gin.H{
+                "code":    50012,
+                "message": "用户token已注销",
             }
             ctx.JSON(http.StatusUnauthorized, response)
             ctx.Abort()

@@ -41,7 +41,7 @@ func NewUserService(mysqlClient *sql.DB, redisClient *redis.Client, ctx context.
 }
 
 /* 创建用户 */
-func (u *UserServiceImpl) CreateUser(user *models.User) error {
+func (us *UserServiceImpl) CreateUser(user *models.User) error {
     sql := `
     insert into sys_user
         (id, user_name, password, mobile, email, gender, avatar, status, admin_flag, create_at, create_user, update_at, update_user)
@@ -52,7 +52,7 @@ func (u *UserServiceImpl) CreateUser(user *models.User) error {
     id := xid.New().String()
     create_at := time.Now().Local()
 
-    _, err := u.mysqlClient.ExecContext(u.ctx, sql, id, user.Name, utils.HashPassword(user.Password), user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, user.AdminFlag, create_at, user.CreateUser, create_at, user.CreateUser)
+    _, err := us.mysqlClient.ExecContext(us.ctx, sql, id, user.Name, utils.HashPassword(user.Password), user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, user.AdminFlag, create_at, user.CreateUser, create_at, user.CreateUser)
     if err != nil {
         return err
     }
@@ -61,7 +61,7 @@ func (u *UserServiceImpl) CreateUser(user *models.User) error {
 }
 
 /* 获取用户 */
-func (u *UserServiceImpl) GetUser(id *string) (*models.User, error) {
+func (us *UserServiceImpl) GetUser(id *string) (*models.User, error) {
     var user models.User
 
     sql := `
@@ -70,7 +70,7 @@ func (u *UserServiceImpl) GetUser(id *string) (*models.User, error) {
     from sys_user a
     where a.id = ?
    `
-    row := u.mysqlClient.QueryRowContext(u.ctx, sql, id)
+    row := us.mysqlClient.QueryRowContext(us.ctx, sql, id)
 
     err := row.Scan(&user.ID, &user.Avatar, &user.Mobile, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Status, &user.AdminFlag, &user.CreateAt, &user.CreateUser, &user.UpdateAt, &user.UpdateUser)
     if err != nil {
@@ -78,38 +78,58 @@ func (u *UserServiceImpl) GetUser(id *string) (*models.User, error) {
     }
 
     //获取用户关联部门
-    departments, err := u.GetDepartmentByUserId(id)
+    departments, err := us.GetDepartmentByUserId(id)
     if err != nil {
         return nil, err
     }
-    user.Department = departments
 
-    //获取用户关联权限
-    roles, err := u.GetRoleByUserId(id)
+    if departments == nil {
+        user.Department = []models.SimpleDepartment{}
+    } else {
+        user.Department = departments
+    }
+
+    //获取用户关联角色
+    roles, err := us.GetRoleByUserId(id)
     if err != nil {
         return nil, err
     }
-    user.Role = roles
+
+    if roles == nil {
+        user.Role = []models.SimpleRole{}
+    } else {
+        user.Role = roles
+    }
 
     //获取用户关联菜单树
-    menuTree, err := u.GetMenuByUserId(id)
+    menuTree, err := us.GetMenuByUserId(id)
     if err != nil {
         return nil, err
     }
-    user.Menu = menuTree
+
+    if menuTree == nil {
+        user.Menu = []*models.MenuTree{}
+    } else {
+        user.Menu = menuTree
+    }
 
     //获取用户关联按钮
-    buttons, err := u.GetButtonByUserId(id)
+    buttons, err := us.GetButtonByUserId(id)
     if err != nil {
         return nil, err
     }
-    user.Button = buttons
+
+    if buttons == nil {
+        user.Button = []models.Button{}
+    } else {
+        user.Button = buttons
+    }
 
     return &user, nil
 }
 
 /* 更新用户 */
-func (u *UserServiceImpl) UpdateUser(user *models.User) error {
+func (us *UserServiceImpl) UpdateUser(user *models.User) error {
     sql := `
     update sys_user set
         user_name=?, mobile=?, email=?, gender=?, avatar=?, status=?, admin_flag=?, update_at=?, update_user=?
@@ -117,7 +137,7 @@ func (u *UserServiceImpl) UpdateUser(user *models.User) error {
     `
 
     update_at := time.Now()
-    _, err := u.mysqlClient.ExecContext(u.ctx, sql, user.Name, user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, user.AdminFlag, update_at, user.UpdateUser, user.ID)
+    _, err := us.mysqlClient.ExecContext(us.ctx, sql, user.Name, user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, user.AdminFlag, update_at, user.UpdateUser, user.ID)
     if err != nil {
         return err
     }
@@ -125,11 +145,11 @@ func (u *UserServiceImpl) UpdateUser(user *models.User) error {
     return nil
 }
 
-func (u *UserServiceImpl) DeleteUser(id *string) error {
+func (us *UserServiceImpl) DeleteUser(id *string) error {
     sql := `
     delete from sys_user where id = ?
     `
-    _, err := u.mysqlClient.ExecContext(u.ctx, sql, id)
+    _, err := us.mysqlClient.ExecContext(us.ctx, sql, id)
     if err != nil {
         return err
     }
@@ -137,8 +157,8 @@ func (u *UserServiceImpl) DeleteUser(id *string) error {
     return nil
 }
 
-/* 获取所有用户 */
-func (u *UserServiceImpl) GetUserList(page *string, limit *string, sort *string, status *string, keyword *string) (*int64, []*models.User, error) {
+/* 获取用户列表 */
+func (us *UserServiceImpl) GetUserList(page *string, limit *string, sort *string, status *string, keyword *string) (*int64, []*models.User, error) {
     var users []*models.User
     var sql string
     var total *int64
@@ -146,7 +166,7 @@ func (u *UserServiceImpl) GetUserList(page *string, limit *string, sort *string,
     sql = `
     select count(*) from sys_user
     `
-    row := u.mysqlClient.QueryRowContext(u.ctx, sql)
+    row := us.mysqlClient.QueryRowContext(us.ctx, sql)
     row.Scan(&total)
     if *total == 0 {
         return total, nil, nil
@@ -160,7 +180,7 @@ func (u *UserServiceImpl) GetUserList(page *string, limit *string, sort *string,
         order by ` + *sort +
         ` limit ?`
 
-    rows, err := u.mysqlClient.QueryContext(u.ctx, sql, page, limit)
+    rows, err := us.mysqlClient.QueryContext(us.ctx, sql, page, limit)
     if err != nil {
         return nil, nil, err
     }
@@ -171,18 +191,28 @@ func (u *UserServiceImpl) GetUserList(page *string, limit *string, sort *string,
         rows.Scan(&user.ID, &user.Avatar, &user.Mobile, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Status, &user.AdminFlag, &user.CreateAt, &user.CreateUser, &user.UpdateAt, &user.UpdateUser)
 
         //获取用户关联部门
-        departments, err := u.GetDepartmentByUserId(&user.ID)
+        departments, err := us.GetDepartmentByUserId(&user.ID)
         if err != nil {
             return nil, nil, err
         }
-        user.Department = departments
 
-        //获取用户关联权限
-        roles, err := u.GetRoleByUserId(&user.ID)
+        if departments == nil {
+            user.Department = []models.SimpleDepartment{}
+        } else {
+            user.Department = departments
+        }
+
+        //获取用户关联角色
+        roles, err := us.GetRoleByUserId(&user.ID)
         if err != nil {
             return nil, nil, err
         }
-        user.Role = roles
+
+        if roles == nil {
+            user.Role = []models.SimpleRole{}
+        } else {
+            user.Role = roles
+        }
 
         users = append(users, &user)
     }
@@ -191,8 +221,8 @@ func (u *UserServiceImpl) GetUserList(page *string, limit *string, sort *string,
 }
 
 /* 获取用户部门 */
-func (u *UserServiceImpl) GetDepartmentByUserId(id *string) ([]models.Department, error) {
-    var departments []models.Department
+func (us *UserServiceImpl) GetDepartmentByUserId(id *string) ([]models.SimpleDepartment, error) {
+    var departments []models.SimpleDepartment
     sql := `
     select b.id, b.department_name from sys_user a
         left join sys_user_department ab on a.id = ab.user_id
@@ -200,14 +230,14 @@ func (u *UserServiceImpl) GetDepartmentByUserId(id *string) ([]models.Department
     where a.id = ?;
     `
 
-    rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
+    rows, err := us.mysqlClient.QueryContext(us.ctx, sql, id)
     if err != nil {
         return nil, err
     }
 
     defer rows.Close()
     for rows.Next() {
-        var department models.Department
+        var department models.SimpleDepartment
         if err := rows.Scan(&department.ID, &department.Name); err != nil {
             return nil, err
         }
@@ -217,25 +247,25 @@ func (u *UserServiceImpl) GetDepartmentByUserId(id *string) ([]models.Department
     return departments, nil
 }
 
-/* 获取用户权限 */
-func (u *UserServiceImpl) GetRoleByUserId(id *string) ([]models.Role, error) {
-    var roles []models.Role
+/* 获取用户角色 */
+func (us *UserServiceImpl) GetRoleByUserId(id *string) ([]models.SimpleRole, error) {
+    var roles []models.SimpleRole
 
     sql := `
     select b.id, b.role_name from sys_user a
         left join sys_user_role ab on a.id = ab.user_id
             join sys_role b on ab.role_id = b.id
-    where a.id = ?;
+    where a.id = ?
    `
 
-    rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
+    rows, err := us.mysqlClient.QueryContext(us.ctx, sql, id)
     if err != nil {
         return nil, err
     }
 
     defer rows.Close()
     for rows.Next() {
-        var role models.Role
+        var role models.SimpleRole
         if err := rows.Scan(&role.ID, &role.Name); err != nil {
             return nil, err
         }
@@ -246,7 +276,7 @@ func (u *UserServiceImpl) GetRoleByUserId(id *string) ([]models.Role, error) {
 }
 
 /* 获取用户菜单 */
-func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error) {
+func (us *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error) {
     var menus []*models.MenuTree
 
     sql := `
@@ -258,7 +288,7 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error
     order by b.sort_id
     `
 
-    rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
+    rows, err := us.mysqlClient.QueryContext(us.ctx, sql, id)
     if err != nil {
         return nil, err
     }
@@ -286,7 +316,7 @@ func (u *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error
 }
 
 /* 获取用户按钮 */
-func (u *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error) {
+func (us *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error) {
     var buttons []models.Button
     sql := `
     select b.id, b.title, b.path from sys_user a
@@ -297,7 +327,7 @@ func (u *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error)
     order by b.sort_id
     `
 
-    rows, err := u.mysqlClient.QueryContext(u.ctx, sql, id)
+    rows, err := us.mysqlClient.QueryContext(us.ctx, sql, id)
     if err != nil {
         return nil, err
     }
