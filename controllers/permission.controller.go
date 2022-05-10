@@ -3,8 +3,6 @@ package controllers
 import (
     "cmdb-app-mysql/services"
     "net/http"
-    "strconv"
-    "strings"
 
     "github.com/gin-gonic/gin"
 )
@@ -37,29 +35,7 @@ func (pc *PermissionController) DeletePermission(ctx *gin.Context) {
 
 /* 获取权限列表 */
 func (pc *PermissionController) GetPermissionList(ctx *gin.Context) {
-    var page, limit, sort string
-    page = ctx.DefaultQuery("page", "0")
-    if page != "0" {
-        p, _ := strconv.Atoi(page)
-        page = strconv.Itoa(p - 1)
-    }
-
-    limit = ctx.DefaultQuery("limit", "20")
-
-    sort = ctx.Query("sort")
-    if sort == "" {
-        sort = "id ASC"
-    } else {
-        s := strings.Split(sort, "")
-        if s[0] == "-" {
-            s = append(s[1:], " DESC")
-        } else {
-            s = append(s[1:], " ASC")
-        }
-        sort = strings.Join(s, "")
-    }
-
-    total, permissions, err := pc.PermissionService.GetPermissionList(&page, &limit, &sort)
+    permissions, err := pc.PermissionService.GetPermissionList()
     if err != nil {
         response := gin.H{
             "code":    10000,
@@ -70,15 +46,10 @@ func (pc *PermissionController) GetPermissionList(ctx *gin.Context) {
         return
     }
 
-    data := gin.H{
-        "total": total,
-        "items": permissions,
-    }
-
     response := gin.H{
         "code":    20000,
         "message": "权限列表成功获取",
-        "data":    data,
+        "data":    permissions,
     }
     ctx.JSON(http.StatusOK, response)
 }

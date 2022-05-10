@@ -2,6 +2,7 @@ package services
 
 import (
     "cmdb-app-mysql/models"
+    "cmdb-app-mysql/utils"
     "context"
     "database/sql"
 )
@@ -11,7 +12,7 @@ type PermissionService interface {
     GetPermission(*string) (*models.Permission, error)
     UpdatePermission(*models.Permission) error
     DeletePermission(*string) error
-    GetPermissionList(*string, *string, *string) (*int64, []*models.Permission, error)
+    GetPermissionList() ([]*models.PermissionTree, error)
 }
 
 type PermissionServiceImpl struct {
@@ -43,40 +44,32 @@ func (ps *PermissionServiceImpl) DeletePermission(id *string) error {
 }
 
 /**/
-func (ps *PermissionServiceImpl) GetPermissionList(page *string, limit *string, sort *string) (*int64, []*models.Permission, error) {
-    var permissions []*models.Permission
-    var sql string
-    var total *int64
+func (ps *PermissionServiceImpl) GetPermissionList() ([]*models.PermissionTree, error) {
+    var permissions []*models.PermissionTree
 
-    sql = `
-    select count(*) from sys_permission
+    sql := `
+    select
+        a.id, a.title, a.parent_id, a.name, a.path, a.component, a.redirect, a.icon, a.sort_id, a.permission_type, a.create_at, a.create_user, a.update_at, a.update_user
+    from sys_permission a
+    order by a.permission_type, a.sort_id
     `
 
-    row := ps.mysqlClient.QueryRowContext(ps.ctx, sql)
-    row.Scan(&total)
-    if *total == 0 {
-        return total, nil, nil
-    }
-
-    sql = `
-        select
-            a.id, a.title, a.parent_id, a.name, a.path, a.component, a.redirect, a.icon, a.sort_id, a.permission_type, a.create_at, a.create_user, a.update_at, a.update_user
-        from sys_permission a
-            where id >= (select id from sys_permission limit ?, 1)
-        order by ` + *sort +
-        ` limit ?`
-
-    rows, err := ps.mysqlClient.QueryContext(ps.ctx, sql, page, limit)
+    rows, err := ps.mysqlClient.QueryContext(ps.ctx, sql)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
 
     defer rows.Close()
     for rows.Next() {
-        var permission models.Permission
-        rows.Scan(&permission.ID, &permission.ParentID, &permission.Title, &permission.Name, &permission.Path, &permission.Component, &permission.Icon, &permission.Redirect, &permission.SortID, &permission.CreateAt, &permission.CreateUser, &permission.UpdateAt, &permission.UpdateUser)
-        permissions = append(permissions, &permission)
+        permission := &models.PermissionTree{}
+        if err := rows.Scan(&permission.ID, &permission.Title, &permission.ParentID, &permission.Name, &permission.Path, &permission.Component, &permission.Redirect, &permission.Icon, &permission.SortID, &permission.Type, &permission.CreateAt, &permission.CreateUser, &permission.UpdateAt, &permission.UpdateUser); err != nil {
+            return nil, err
+        }
+        permission.Children = nil
+        permissions = append(permissions, permission)
     }
 
-    return total, permissions, nil
+    // convert list To tree
+    permissionTree := utils.BuildPremissionTree(permissions, "")
+    return permissionTree, nil
 }

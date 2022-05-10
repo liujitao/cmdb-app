@@ -284,7 +284,7 @@ func (us *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, erro
         left join sys_user_role ac on a.id = ac.user_id
             join sys_role_permission bd on ac.role_id = bd.role_id
                 join sys_permission b on b.id = bd.permission_id
-    where b.permission_type = 0 and a.id = ?
+    where b.permission_type in (0, 1) and a.id = ?
     order by b.sort_id
     `
 
@@ -323,7 +323,7 @@ func (us *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error
         left join sys_user_role ac on a.id = ac.user_id
             join sys_role_permission bd on ac.role_id = bd.role_id
                 join sys_permission b on b.id = bd.permission_id
-    where b.permission_type = 1 and a.id = ?
+    where b.permission_type = 2 and a.id = ?
     order by b.sort_id
     `
 

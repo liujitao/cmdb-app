@@ -116,3 +116,19 @@ func BuildMenuTree(items []*models.MenuTree, parentID string) []*models.MenuTree
 
     return tree
 }
+
+/*
+构建权限树
+*/
+func BuildPremissionTree(items []*models.PermissionTree, parentID string) []*models.PermissionTree {
+    tree := make([]*models.PermissionTree, 0)
+
+    for _, item := range items {
+        if item.ParentID == parentID {
+            item.Children = BuildPremissionTree(items, item.ID)
+            tree = append(tree, item)
+        }
+    }
+
+    return tree
+}
