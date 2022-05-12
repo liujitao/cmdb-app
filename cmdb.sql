@@ -52,7 +52,7 @@ CREATE TABLE `sys_department` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10100 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 部门表';
 
-INSERT INTO `sys_department` VALUES ('10001', 'ABC技术有限公司', 0, '5748354935248', 1, 'ABC技术有限公司', '2021-07-05 15:20:44', '5748354935248', '2021-07-05 15:20:47', '5748354935248');
+INSERT INTO `sys_department` VALUES ('10001', 'ABC技术有限公司', '', '5748354935248', 1, 'ABC技术有限公司', '2021-07-05 15:20:44', '5748354935248', '2021-07-05 15:20:47', '5748354935248');
 INSERT INTO `sys_department` VALUES ('10005', '研发部', '10001', '5748354935250', 3, '研发部', '2021-07-19 10:55:32', '5748354935248', '2022-03-24 16:25:46', '5748354935248');
 INSERT INTO `sys_department` VALUES ('10010', '市场部', '10001', '5748354935252', 2, '市场部', '2021-07-29 10:22:18', '5748354935248', '2021-07-29 10:25:42', '5748354935248');
 INSERT INTO `sys_department` VALUES ('10011', '软件组', '10005', '5748354935253', 1, '软件组', '2021-07-29 10:58:19', '5748354935248', '2021-07-29 14:36:51', '5748354935248');
@@ -93,15 +93,18 @@ CREATE TABLE `sys_permission` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 菜单权限表';
 
-INSERT INTO `sys_permission` VALUES ('10002', '文档管理', '', 'Article', '/article', 'Layout', '/article/list', 'el-icon-document', 2, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10052', '文章管理', '10002', 'ArticleList', '/article/list', 'views/article/index', '', '', 1, 1, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10053', '文章分类', '10002', 'ArticleCategory', '/article/category', 'views/article/category', '', '', 2, 1, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10002', '资产管理', '', 'Asset', '/asset', 'Layout', '/asset/server', 'el-icon-s-grid', 2, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10052', '网络设备', '10002', 'AssetNetwork', '/asset/network', 'views/asset/network/index', '', '', 1, 1, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10053', '存储设备', '10002', 'AssetStorage', '/asset/storage', 'views/asset/storage/index', '', '', 2, 1, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10054', '服务器', '10002', 'AssetServer', '/asset/server', 'views/asset/server/index', '', '', 3, 1, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10055', '设备备件', '10002', 'ArticlSpare', '/asset/spare', 'views/asset/spare/index', '', '', 4, 1, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:22', '5748354935248');
 
 INSERT INTO `sys_permission` VALUES ('10001', '系统管理', '', 'Setting', '/setting', 'Layout', '/setting/user', 'el-icon-setting', 9, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:28', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10004', '用户管理', '10001', 'SettingUser', '/setting/user', 'views/user/index', '', '', 1, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:34:56', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10005', '角色管理', '10001', 'SettingRole', '/settting/role', 'views/role/index', '', '', 2, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:30', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10007', '部门管理', '10001', 'SysDepartment', '/setting/department', 'views/department/index', '', '', 3, 1, '2021-07-09 12:30:00', '5748354935248', '2021-07-27 16:46:09', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10003', '权限管理', '10001', 'SettingMenu', '/setting/permission', 'views/permission/index', '', '', 4, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:18', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10008', '图标管理', '10001', 'SettingIcon', '/setting/icon', 'views/icon/index', '', '', 5, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:18', '5748354935248');
 
 INSERT INTO `sys_permission` VALUES ('10082', '视图', '10003', '', '/setting/permission/get', '', '', '', 1, 2, '2022-03-25 14:05:50', '5748354935248', '2022-03-25 14:09:31', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10066', '新增', '10003', '', '/setting/permission/post', '', '', '', 2, 2, '2022-03-25 13:50:51', '5748354935248', '2022-03-25 14:09:47', '5748354935248');
@@ -144,6 +147,8 @@ INSERT INTO `sys_role_permission` VALUES ('10001', '10066');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10002');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10052');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10053');
+INSERT INTO `sys_role_permission` VALUES ('10001', '10054');
+INSERT INTO `sys_role_permission` VALUES ('10001', '10055');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10003');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10067');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10068');
@@ -166,6 +171,8 @@ INSERT INTO `sys_role_permission` VALUES ('10001', '10082');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10083');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10084');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10085');
+INSERT INTO `sys_role_permission` VALUES ('10001', '10008');
+
 INSERT INTO `sys_role_permission` VALUES ('10038', '10001');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10082');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10083');
@@ -175,6 +182,13 @@ INSERT INTO `sys_role_permission` VALUES ('10038', '10004');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10085');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10005');
 INSERT INTO `sys_role_permission` VALUES ('10038', '10007');
+INSERT INTO `sys_role_permission` VALUES ('10038', '10008');
+
+INSERT INTO `sys_role_permission` VALUES ('10039', '10002');
+INSERT INTO `sys_role_permission` VALUES ('10039', '10052');
+INSERT INTO `sys_role_permission` VALUES ('10039', '10053');
+INSERT INTO `sys_role_permission` VALUES ('10039', '10054');
+INSERT INTO `sys_role_permission` VALUES ('10039', '10055');
 
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role` (

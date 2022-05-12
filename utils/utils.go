@@ -132,3 +132,19 @@ func BuildPremissionTree(items []*models.PermissionTree, parentID string) []*mod
 
     return tree
 }
+
+/*
+构建部门树
+*/
+func BuildDepartmentTree(items []*models.DepartmentTree, parentID string) []*models.DepartmentTree {
+    tree := make([]*models.DepartmentTree, 0)
+
+    for _, item := range items {
+        if item.ParentID == parentID {
+            item.Children = BuildDepartmentTree(items, item.ID)
+            tree = append(tree, item)
+        }
+    }
+
+    return tree
+}

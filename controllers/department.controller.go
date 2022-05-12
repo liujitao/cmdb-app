@@ -35,7 +35,7 @@ func (dc *DepartmentController) DeleteDepartment(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
-/* 获取角色列表 */
+/* 获取部门列表 */
 func (dc *DepartmentController) GetDepartmentList(ctx *gin.Context) {
     var page, limit, sort string
     page = ctx.DefaultQuery("page", "0")
@@ -77,8 +77,29 @@ func (dc *DepartmentController) GetDepartmentList(ctx *gin.Context) {
 
     response := gin.H{
         "code":    20000,
-        "message": "角色列表成功获取",
+        "message": "部门列表成功获取",
         "data":    data,
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
+/* 获取部门选择项 */
+func (dc *DepartmentController) GetDepartmentOption(ctx *gin.Context) {
+    departments, err := dc.DepartmentService.GetDepartmentTree()
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadRequest, response)
+        return
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "部门选择项成功获取",
+        "data":    departments,
     }
     ctx.JSON(http.StatusOK, response)
 }

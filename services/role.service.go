@@ -103,6 +103,7 @@ func (rs *RoleServiceImpl) GetUserByRoleID(id *string) ([]models.SimpleUser, err
         left join sys_user_role ab on a.id = ab.role_id
             join sys_user b on ab.user_id = b.id
     where a.id = ?
+    order by b.user_name
    `
 
     rows, err := rs.mysqlClient.QueryContext(rs.ctx, sql, id)

@@ -130,6 +130,7 @@ func main() {
         departmentRoute.PATCH("/update", departmentController.UpdateDepartment)
         departmentRoute.DELETE("/delete", departmentController.DeleteDepartment)
         departmentRoute.GET("/list", departmentController.GetDepartmentList)
+        departmentRoute.GET("/select", departmentController.GetDepartmentOption)
     }
 
     departmentRoute.Use(userController.AuthMiddleware())

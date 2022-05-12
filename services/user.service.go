@@ -146,9 +146,7 @@ func (us *UserServiceImpl) UpdateUser(user *models.User) error {
 }
 
 func (us *UserServiceImpl) DeleteUser(id *string) error {
-    sql := `
-    delete from sys_user where id = ?
-    `
+    sql := `delete from sys_user where id = ?`
     _, err := us.mysqlClient.ExecContext(us.ctx, sql, id)
     if err != nil {
         return err
@@ -220,14 +218,15 @@ func (us *UserServiceImpl) GetUserList(page *string, limit *string, sort *string
     return total, users, nil
 }
 
-/* 获取用户部门 */
+/* 获取用户关联部门 */
 func (us *UserServiceImpl) GetDepartmentByUserId(id *string) ([]models.SimpleDepartment, error) {
     var departments []models.SimpleDepartment
     sql := `
     select b.id, b.department_name from sys_user a
         left join sys_user_department ab on a.id = ab.user_id
             join sys_department b on ab.department_id = b.id
-    where a.id = ?;
+    where a.id = ?
+    order by b.department_name
     `
 
     rows, err := us.mysqlClient.QueryContext(us.ctx, sql, id)
@@ -247,7 +246,7 @@ func (us *UserServiceImpl) GetDepartmentByUserId(id *string) ([]models.SimpleDep
     return departments, nil
 }
 
-/* 获取用户角色 */
+/* 获取用户关联角色 */
 func (us *UserServiceImpl) GetRoleByUserId(id *string) ([]models.SimpleRole, error) {
     var roles []models.SimpleRole
 
@@ -256,6 +255,7 @@ func (us *UserServiceImpl) GetRoleByUserId(id *string) ([]models.SimpleRole, err
         left join sys_user_role ab on a.id = ab.user_id
             join sys_role b on ab.role_id = b.id
     where a.id = ?
+    order by b.role_name
    `
 
     rows, err := us.mysqlClient.QueryContext(us.ctx, sql, id)

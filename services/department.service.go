@@ -2,6 +2,7 @@ package services
 
 import (
     "cmdb-app-mysql/models"
+    "cmdb-app-mysql/utils"
     "context"
     "database/sql"
 )
@@ -12,6 +13,7 @@ type DepartmentService interface {
     // UpdatDepartment(*models.Department) error
     // DeleteDepartment(*string) error
     GetDepartmentList(*string, *string, *string) (*int64, []*models.Department, error)
+    GetDepartmentTree() ([]*models.DepartmentTree, error)
 }
 
 type DepartmentServiceImpl struct {
@@ -42,7 +44,7 @@ func (ds *DepartmentServiceImpl) DeleteDepartment(id *string) error {
     return nil
 }
 
-/**/
+/* 获取部门列表 */
 func (ds *DepartmentServiceImpl) GetDepartmentList(page *string, limit *string, sort *string) (*int64, []*models.Department, error) {
     var departments []*models.Department
     var sql string
@@ -94,6 +96,32 @@ func (ds *DepartmentServiceImpl) GetDepartmentList(page *string, limit *string, 
     return total, departments, nil
 }
 
+/* 获取部门树 */
+func (ds *DepartmentServiceImpl) GetDepartmentTree() ([]*models.DepartmentTree, error) {
+    var departments []*models.DepartmentTree
+
+    sql := `select id, parent_id, department_name from sys_department order by department_name`
+
+    rows, err := ds.mysqlClient.QueryContext(ds.ctx, sql)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+    for rows.Next() {
+        department := &models.DepartmentTree{}
+        if err := rows.Scan(&department.ID, &department.ParentID, &department.Name); err != nil {
+            return nil, err
+        }
+        department.Children = nil
+        departments = append(departments, department)
+    }
+
+    // convert list To tree
+    departmentTree := utils.BuildDepartmentTree(departments, "")
+    return departmentTree, nil
+}
+
 /* 获取角色用户 */
 func (rs *DepartmentServiceImpl) GetUserByDepartmentID(id *string) ([]models.SimpleUser, error) {
     var users []models.SimpleUser
@@ -103,6 +131,7 @@ func (rs *DepartmentServiceImpl) GetUserByDepartmentID(id *string) ([]models.Sim
         left join sys_user_department ab on a.id = ab.department_id
             join sys_user b on ab.user_id = b.id
     where a.id = ?
+    order by b.user_name
    `
 
     rows, err := rs.mysqlClient.QueryContext(rs.ctx, sql, id)

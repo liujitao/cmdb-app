@@ -12,7 +12,7 @@ type PermissionService interface {
     GetPermission(*string) (*models.Permission, error)
     UpdatePermission(*models.Permission) error
     DeletePermission(*string) error
-    GetPermissionList() ([]*models.PermissionTree, error)
+    GetPermissionTree() ([]*models.PermissionTree, error)
 }
 
 type PermissionServiceImpl struct {
@@ -43,8 +43,8 @@ func (ps *PermissionServiceImpl) DeletePermission(id *string) error {
     return nil
 }
 
-/**/
-func (ps *PermissionServiceImpl) GetPermissionList() ([]*models.PermissionTree, error) {
+/* 获取权限树 */
+func (ps *PermissionServiceImpl) GetPermissionTree() ([]*models.PermissionTree, error) {
     var permissions []*models.PermissionTree
 
     sql := `

@@ -35,7 +35,7 @@ func (pc *PermissionController) DeletePermission(ctx *gin.Context) {
 
 /* 获取权限列表 */
 func (pc *PermissionController) GetPermissionList(ctx *gin.Context) {
-    permissions, err := pc.PermissionService.GetPermissionList()
+    permissions, err := pc.PermissionService.GetPermissionTree()
     if err != nil {
         response := gin.H{
             "code":    10000,
