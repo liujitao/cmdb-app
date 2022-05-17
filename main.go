@@ -90,7 +90,7 @@ func main() {
     v1 := server.Group("/v1")
     v1.Use(cors.Default())
 
-    //  user 路由
+    // user 路由
     userRoute := v1.Group("/user")
     {
         userRoute.POST("/login", userController.LoginUser)
@@ -105,6 +105,7 @@ func main() {
         userRoute.PATCH("/update", userController.UpdateUser)
         userRoute.DELETE("/delete", userController.DeleteUser)
         userRoute.GET("/list", userController.GetUserList)
+        userRoute.POST("/change_password", userController.ChangeUserPassword)
     }
 
     // role 路由

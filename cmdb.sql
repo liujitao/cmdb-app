@@ -16,26 +16,24 @@ CREATE TABLE `sys_user` (
   `user_name` varchar(50) NOT NULL COMMENT '用户名称',
   `password` varchar(255) NOT NULL COMMENT '密码',
   `gender` tinyint(4) NOT NULL COMMENT '性别[ 0.女  1.男  2.未知]',
-  `department_id` varchar(20) NOT NULL COMMENT '部门ID',
   `status` tinyint(1) NOT NULL COMMENT '状态 [ 0.禁用 1.正常 ]',
-  `admin_flag` tinyint(1) NOT NULL COMMENT '0. 普通用户  1. 管理员',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
-  `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
-  `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
+  `update_at` datetime COMMENT '最后一次修改时间',
+  `update_user` varchar(20) COMMENT '最后一次修改人',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `UK_ulo5s2i7qoksp54tgwl_mobile` (`mobile`) USING BTREE,
   UNIQUE KEY `UK_6ixlo2i7qoksp54tgwl_username` (`user_name`) USING BTREE,
   UNIQUE KEY `UK_6i5ixxs2i7984erhgwl_email` (`email`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 用户表';
 
-INSERT INTO `sys_user` VALUES ('5748354935248', 'https://oss.mhtled.com/avatar/6bcf17f12e524820abb9d983b6384fdc.png', '13910514434', 'admin@abc.com', '管理员', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 2, '10001', 1, 1, '2021-05-14 11:17:33', '5748354935248', '2021-12-17 10:12:24', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5748354935249', 'https://oss.mhtled.com/avatar/69356c4b58014aa5b157229a8953695c.jpg', '15071525231', 'test1@mhtled.com', '测试用户2', '$2a$10$egh4K7nA02uTqzS.wX1rDeiB4NBWgyFqE86WGb7b08d4Vr3IVzSZq', 2, '10005', 0, 0, '2021-05-14 11:17:33', '5748354935248', '2021-12-17 10:12:56', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5748354935250', 'https://oss.mhtled.com/avatar/e28d9e7463a54374905ec297d923f990.jpg', '15071525235', 'doudou@mhtled.com', '王陈陈', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 0, '10005', 1, 0, '2021-05-14 11:17:33', '5748354935248', '2022-02-24 11:58:57', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5748354935251', 'https://oss.mhtled.com/avatar/de422f1053f042d3bbb5f36480095baf.jpg', '18711336565', '1234567890@mhtled.com', 'koushuiwa', '$2a$10$RBhJGpKGthZGb8OZovRd1.14z0XToeyHqOqrvy21DmIhbbEG8U.Ey', 0, '10011', 1, 0, '2021-10-09 09:38:09', '5748354935248', '2021-12-17 10:13:26', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5748354935252', 'https://oss.mhtled.com/avatar/9e29bef889db433f91f9d7edf26c7aa8.jpg', '18682035178', '42199386@mhtled.com', 'Yang Jian Ming', '$2a$10$HOyIJ.RQlQk4srEO62H/xuFLccMKpogBrIvlf7zXoCFh0eeULp586', 0, '10011', 1, 0, '2021-11-01 09:44:01', '5748354935248', '2021-12-17 10:13:31', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5748354935253', 'https://oss.mhtled.com/image/mhtled_logo.png', '15222222222', 'zhangyao@mhtled.com', '张瑶', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 1, '10011', 1, 0, '2021-11-23 15:03:13', '5748354935248', '2022-03-25 14:26:09', '5748354935248');
-INSERT INTO `sys_user` VALUES ('5749496392112', 'https://images.xaaef.com/5096297972b0469f80467771ba9c0fda.jpg', '15071525332', 'nihaoya123@qq.com', '你好呀', '$2a$10$5Vxu.lkpQT9awGBm/Uh3UOFs7DlMp9qL8b1zO.lfiJN2DbYn.eD5S', 1, '10010', 1, 0, '2022-03-25 11:21:39', '5748354935248', '2022-03-25 11:21:39', '5748354935248');
+INSERT INTO `sys_user` VALUES ('5748354935248', 'https://oss.mhtled.com/avatar/6bcf17f12e524820abb9d983b6384fdc.png', '13910514434', 'admin@abc.com', '管理员', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 2, 1, '2021-05-14 11:17:33', '管理员', '2021-12-17 10:12:24', '管理员');
+INSERT INTO `sys_user` VALUES ('5748354935249', 'https://oss.mhtled.com/avatar/69356c4b58014aa5b157229a8953695c.jpg', '15071525231', 'test1@mhtled.com', '测试用户2', '$2a$10$egh4K7nA02uTqzS.wX1rDeiB4NBWgyFqE86WGb7b08d4Vr3IVzSZq', 2, 0, '2021-05-14 11:17:33', '管理员', '2021-12-17 10:12:56', '管理员');
+INSERT INTO `sys_user` VALUES ('5748354935250', 'https://oss.mhtled.com/avatar/e28d9e7463a54374905ec297d923f990.jpg', '15071525235', 'doudou@mhtled.com', '王陈陈', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 0, 1, '2021-05-14 11:17:33', '管理员', '2022-02-24 11:58:57', '管理员');
+INSERT INTO `sys_user` VALUES ('5748354935251', 'https://oss.mhtled.com/avatar/de422f1053f042d3bbb5f36480095baf.jpg', '18711336565', '1234567890@mhtled.com', 'koushuiwa', '$2a$10$RBhJGpKGthZGb8OZovRd1.14z0XToeyHqOqrvy21DmIhbbEG8U.Ey', 0, 1, '2021-10-09 09:38:09', '管理员', '2021-12-17 10:13:26', '管理员');
+INSERT INTO `sys_user` VALUES ('5748354935252', 'https://oss.mhtled.com/avatar/9e29bef889db433f91f9d7edf26c7aa8.jpg', '18682035178', '42199386@mhtled.com', 'Yang Jian Ming', '$2a$10$HOyIJ.RQlQk4srEO62H/xuFLccMKpogBrIvlf7zXoCFh0eeULp586', 0, 1, '2021-11-01 09:44:01', '管理员', '2021-12-17 10:13:31', '管理员');
+INSERT INTO `sys_user` VALUES ('5748354935253', 'https://oss.mhtled.com/image/mhtled_logo.png', '15222222222', 'zhangyao@mhtled.com', '张瑶', '$2a$10$Hxx27PDN.Eu3nWhB07Dk3eHbLqT5/0zCKR/h3FtYpne6KA9Qhj0uO', 1, 1, '2021-11-23 15:03:13', '管理员', '2022-03-25 14:26:09', '管理员');
+INSERT INTO `sys_user` VALUES ('5749496392112', 'https://images.xaaef.com/5096297972b0469f80467771ba9c0fda.jpg', '15071525332', 'nihaoya123@qq.com', '你好呀', '$2a$10$5Vxu.lkpQT9awGBm/Uh3UOFs7DlMp9qL8b1zO.lfiJN2DbYn.eD5S', 1, 1, '2022-03-25 11:21:39', '管理员', '2022-03-25 11:21:39', '管理员');
 
 DROP TABLE IF EXISTS `sys_department`;
 CREATE TABLE `sys_department` (
@@ -140,7 +138,6 @@ CREATE TABLE `sys_role_permission` (
   `role_id` varchar(20) NOT NULL COMMENT '角色ID',
   `permission_id` varchar(20) NOT NULL COMMENT '菜单ID'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 角色和菜单权限表';
-
 
 INSERT INTO `sys_role_permission` VALUES ('10001', '10001');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10066');

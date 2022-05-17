@@ -62,9 +62,8 @@ func (rs *RoleServiceImpl) GetRoleList(page *string, limit *string, sort *string
         select
             a.id, a.role_name, a.create_at, a.create_user, a.update_at, a.update_user
         from sys_role a
-            where id >= (select id from sys_role limit ?, 1)
         order by ` + *sort +
-        ` limit ?`
+        ` limit ?, ?`
 
     rows, err := rs.mysqlClient.QueryContext(rs.ctx, sql, page, limit)
     if err != nil {

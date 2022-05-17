@@ -64,9 +64,8 @@ func (ds *DepartmentServiceImpl) GetDepartmentList(page *string, limit *string, 
         select
             a.id, a.department_name, a.create_at, a.create_user, a.update_at, a.update_user
         from sys_department a
-            where id >= (select id from sys_department limit ?, 1)
         order by ` + *sort +
-        ` limit ?`
+        ` limit ?, ?`
 
     rows, err := ds.mysqlClient.QueryContext(ds.ctx, sql, page, limit)
     if err != nil {

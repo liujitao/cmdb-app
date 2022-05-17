@@ -3,6 +3,8 @@ package services
 import (
     "context"
     "database/sql"
+    "fmt"
+    "strings"
     "time"
 
     "cmdb-app-mysql/models"
@@ -14,10 +16,11 @@ import (
 
 type UserService interface {
     CreateUser(*models.User) error
-    GetUser(*string) (*models.User, error)
+    GetUser(*string) (*models.UserResponse, error)
     UpdateUser(*models.User) error
     DeleteUser(*string) error
-    GetUserList(*string, *string, *string, *string, *string) (*int64, []*models.User, error)
+    GetUserList(*string, *string, *string, *string, *string) (*int64, []*models.UserResponse, error)
+    ChangeUserPassword(*models.UserPassword) error
     LoginUser(*models.UserLogin) (*models.Login, error)
     LogoutUser(string) error
     RefreshUser(string) (*models.Login, error)
@@ -40,19 +43,48 @@ func NewUserService(mysqlClient *sql.DB, redisClient *redis.Client, ctx context.
     }
 }
 
-/* 创建用户 */
+/* 创建 */
 func (us *UserServiceImpl) CreateUser(user *models.User) error {
-    sql := `
+    var sql string
+    var err error
+    var department, role []string
+
+    // 插入用户
+    sql = `
     insert into sys_user
-        (id, user_name, password, mobile, email, gender, avatar, status, admin_flag, create_at, create_user, update_at, update_user)
+        (id, user_name, password, mobile, email, gender, avatar, status, create_at, create_user)
     values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
 
-    id := xid.New().String()
+    id := strings.ToUpper(xid.New().String())
     create_at := time.Now().Local()
+    password := utils.HashPassword(models.DefaultPassword)
 
-    _, err := us.mysqlClient.ExecContext(us.ctx, sql, id, user.Name, utils.HashPassword(user.Password), user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, user.AdminFlag, create_at, user.CreateUser, create_at, user.CreateUser)
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id, user.Name, password, user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, create_at, user.CreateUser)
+    if err != nil {
+        return err
+    }
+
+    // 插入用户部门关联
+    for _, item := range user.Department {
+        department = append(department, "('"+id+"', '"+item+"')")
+    }
+    sql = `insert into sys_user_department values ` + strings.Join(department, ",")
+
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql)
+    if err != nil {
+        return err
+    }
+
+    // 插入用户角色关联
+    for _, item := range user.Role {
+        role = append(role, "('"+id+"', '"+item+"')")
+    }
+    sql = `insert into sys_user_role values ` + strings.Join(role, ",")
+
+    fmt.Println(sql)
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql)
     if err != nil {
         return err
     }
@@ -60,19 +92,19 @@ func (us *UserServiceImpl) CreateUser(user *models.User) error {
     return nil
 }
 
-/* 获取用户 */
-func (us *UserServiceImpl) GetUser(id *string) (*models.User, error) {
-    var user models.User
+/* 获取 */
+func (us *UserServiceImpl) GetUser(id *string) (*models.UserResponse, error) {
+    var user models.UserResponse
 
     sql := `
     select
-        a.id, a.avatar, a.mobile, a.email, a.user_name, a.password, a.gender, a.status, a.admin_flag, a.create_at, a.create_user, a.update_at, a.update_user
+        a.id, a.avatar, a.mobile, a.email, a.user_name, a.password, a.gender, a.status, a.create_at, a.create_user, a.update_at, a.update_user
     from sys_user a
     where a.id = ?
    `
     row := us.mysqlClient.QueryRowContext(us.ctx, sql, id)
 
-    err := row.Scan(&user.ID, &user.Avatar, &user.Mobile, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Status, &user.AdminFlag, &user.CreateAt, &user.CreateUser, &user.UpdateAt, &user.UpdateUser)
+    err := row.Scan(&user.ID, &user.Avatar, &user.Mobile, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Status, &user.CreateAt, &user.CreateUser, &user.UpdateAt, &user.UpdateUser)
     if err != nil {
         return nil, err
     }
@@ -128,16 +160,57 @@ func (us *UserServiceImpl) GetUser(id *string) (*models.User, error) {
     return &user, nil
 }
 
-/* 更新用户 */
+/* 更新 */
 func (us *UserServiceImpl) UpdateUser(user *models.User) error {
-    sql := `
+    var sql string
+    var err error
+    var department, role []string
+
+    sql = `
     update sys_user set
-        user_name=?, mobile=?, email=?, gender=?, avatar=?, status=?, admin_flag=?, update_at=?, update_user=?
+        user_name=?, mobile=?, email=?, gender=?, avatar=?, status=?, update_at=?, update_user=?
     where id = ?
     `
 
-    update_at := time.Now()
-    _, err := us.mysqlClient.ExecContext(us.ctx, sql, user.Name, user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, user.AdminFlag, update_at, user.UpdateUser, user.ID)
+    update_at := time.Now().Local()
+    id := user.ID
+
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql, user.Name, user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, update_at, user.UpdateUser, id)
+    if err != nil {
+        return err
+    }
+
+    // 删除用户部门角色关联
+    sql = `delete from sys_user_role where user_id = ?`
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
+    if err != nil {
+        return err
+    }
+
+    sql = `delete from sys_user_department where user_id = ?`
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
+    if err != nil {
+        return err
+    }
+
+    // 更新用户部门关联
+    for _, item := range user.Department {
+        department = append(department, "('"+id+"', '"+item+"')")
+    }
+    sql = `insert into sys_user_department values ` + strings.Join(department, ",")
+
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql)
+    if err != nil {
+        return err
+    }
+
+    // 更新用户角色关联
+    for _, item := range user.Role {
+        role = append(role, "('"+id+"', '"+item+"')")
+    }
+    sql = `insert into sys_user_role values ` + strings.Join(role, ",")
+
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql)
     if err != nil {
         return err
     }
@@ -145,9 +218,27 @@ func (us *UserServiceImpl) UpdateUser(user *models.User) error {
     return nil
 }
 
+/* 删除 */
 func (us *UserServiceImpl) DeleteUser(id *string) error {
-    sql := `delete from sys_user where id = ?`
-    _, err := us.mysqlClient.ExecContext(us.ctx, sql, id)
+    var sql string
+    var err error
+
+    // 删除用户部门角色关联
+    sql = `delete from sys_user_role where user_id = ?`
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
+    if err != nil {
+        return err
+    }
+
+    sql = `delete from sys_user_department where user_id = ?`
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
+    if err != nil {
+        return err
+    }
+
+    // 删除用户
+    sql = `delete from sys_user where id = ?`
+    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
     if err != nil {
         return err
     }
@@ -155,9 +246,9 @@ func (us *UserServiceImpl) DeleteUser(id *string) error {
     return nil
 }
 
-/* 获取用户列表 */
-func (us *UserServiceImpl) GetUserList(page *string, limit *string, sort *string, status *string, keyword *string) (*int64, []*models.User, error) {
-    var users []*models.User
+/* 获取列表 */
+func (us *UserServiceImpl) GetUserList(page *string, limit *string, sort *string, status *string, keyword *string) (*int64, []*models.UserResponse, error) {
+    var users []*models.UserResponse
     var sql string
     var total *int64
 
@@ -172,11 +263,10 @@ func (us *UserServiceImpl) GetUserList(page *string, limit *string, sort *string
 
     sql = `
         select
-            a.id, a.avatar, a.mobile, a.email, a.user_name, a.password, a.gender, a.status, a.admin_flag, a.create_at, a.create_user, a.update_at, a.update_user
+            a.id, a.avatar, a.mobile, a.email, a.user_name, a.password, a.gender, a.status, a.create_at, a.create_user, a.update_at, a.update_user
         from sys_user a
-            where id >= (select id from sys_user limit ?, 1)
         order by ` + *sort +
-        ` limit ?`
+        ` limit ?, ?`
 
     rows, err := us.mysqlClient.QueryContext(us.ctx, sql, page, limit)
     if err != nil {
@@ -185,8 +275,8 @@ func (us *UserServiceImpl) GetUserList(page *string, limit *string, sort *string
 
     defer rows.Close()
     for rows.Next() {
-        var user models.User
-        rows.Scan(&user.ID, &user.Avatar, &user.Mobile, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Status, &user.AdminFlag, &user.CreateAt, &user.CreateUser, &user.UpdateAt, &user.UpdateUser)
+        var user models.UserResponse
+        rows.Scan(&user.ID, &user.Avatar, &user.Mobile, &user.Email, &user.Name, &user.Password, &user.Gender, &user.Status, &user.CreateAt, &user.CreateUser, &user.UpdateAt, &user.UpdateUser)
 
         //获取用户关联部门
         departments, err := us.GetDepartmentByUserId(&user.ID)
@@ -342,4 +432,21 @@ func (us *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error
     }
 
     return buttons, nil
+}
+
+/* 变更用户密码 */
+func (us *UserServiceImpl) ChangeUserPassword(user *models.UserPassword) error {
+    var password string
+    sql := `update sys_user set password = ? where id = ?`
+    if user.Password == "" {
+        password = utils.HashPassword(models.DefaultPassword)
+    } else {
+        password = user.Password
+    }
+    _, err := us.mysqlClient.ExecContext(us.ctx, sql, password, user.ID)
+    if err != nil {
+        return err
+    }
+
+    return nil
 }

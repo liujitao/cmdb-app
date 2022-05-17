@@ -3,6 +3,23 @@ package models
 import "time"
 
 type User struct {
+    ID         string     `json:"id"`
+    Avatar     string     `json:"avatar"`
+    Mobile     string     `json:"mobile"`
+    Email      string     `json:"email"`
+    Name       string     `json:"user_name"`
+    Password   string     `json:"password,omitempty"`
+    Gender     int8       `json:"gender"`
+    Status     int8       `json:"status"`
+    CreateAt   *time.Time `json:"create_at,omitempty"`
+    CreateUser string     `json:"create_user,omitempty"`
+    UpdateAt   *time.Time `json:"update_at,omitempty"`
+    UpdateUser string     `json:"update_user,omitempty"`
+    Department []string   `json:"departments"`
+    Role       []string   `json:"roles"`
+}
+
+type UserResponse struct {
     ID         string             `json:"id"`
     Avatar     string             `json:"avatar"`
     Mobile     string             `json:"mobile"`
@@ -11,12 +28,11 @@ type User struct {
     Password   string             `json:"password"`
     Gender     int8               `json:"gender"`
     Status     int8               `json:"status"`
-    AdminFlag  int8               `json:"admin_flag"`
     CreateAt   *time.Time         `json:"create_at"`
     CreateUser string             `json:"create_user"`
     UpdateAt   *time.Time         `json:"update_at"`
     UpdateUser string             `json:"update_user"`
-    Department []SimpleDepartment `json:"department"`
+    Department []SimpleDepartment `json:"departments"`
     Role       []SimpleRole       `json:"roles"`
     Menu       []*MenuTree        `json:"menus,omitempty"`
     Button     []Button           `json:"buttons,omitempty"`
@@ -27,15 +43,11 @@ type SimpleUser struct {
     Name string `json:"user_name"`
 }
 
-type PasswordChange struct {
-    ID          string `json:"id"`
-    OldPassword string `json:"old_password"`
-    NewPassword string `json:"new_password"`
-}
+const DefaultPassword = "Abcd@1234"
 
-type PasswordReset struct {
-    ID          string `json:"id"`
-    NewPassword string `json:"new_password"`
+type UserPassword struct {
+    ID       string `json:"id"`
+    Password string `json:"password"`
 }
 
 type UserLogin struct {

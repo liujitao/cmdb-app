@@ -10,16 +10,11 @@ import (
 /* 用户登录 */
 func (us *UserServiceImpl) LoginUser(user *models.UserLogin) (*models.Login, error) {
     var userID, hashPassword string
-    var adminFlag int8
 
-    sql := `
-    select id, password, admin_flag
-    from sys_user
-    where email = ? or mobile = ? and status = 1
-    `
+    sql := `select id, password from sys_user where email = ? or mobile = ? and status = 1`
 
     row := us.mysqlClient.QueryRowContext(us.ctx, sql, user.LoginID, user.LoginID)
-    if err := row.Scan(&userID, &hashPassword, &adminFlag); err != nil {
+    if err := row.Scan(&userID, &hashPassword); err != nil {
         return nil, err
     }
 
@@ -103,16 +98,6 @@ func (us *UserServiceImpl) RefreshUser(id string) (*models.Login, error) {
     }
 
     return login, nil
-}
-
-/* 用户变更密码 */
-func (us *UserServiceImpl) ChangePassword(user *models.PasswordChange) error {
-    return nil
-}
-
-/* 用户重置密码 */
-func (us *UserServiceImpl) ResetPassword(user *models.PasswordReset) error {
-    return nil
 }
 
 /* 从redis获取token */
