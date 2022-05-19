@@ -45,15 +45,15 @@ CREATE TABLE `sys_department` (
   `description` varchar(255) NOT NULL COMMENT '部门描述',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
-  `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
-  `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
+  `update_at` datetime COMMENT '最后一次修改时间',
+  `update_user` varchar(20) COMMENT '最后一次修改人',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10100 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 部门表';
 
-INSERT INTO `sys_department` VALUES ('10001', 'ABC技术有限公司', '', '5748354935248', 1, 'ABC技术有限公司', '2021-07-05 15:20:44', '5748354935248', '2021-07-05 15:20:47', '5748354935248');
-INSERT INTO `sys_department` VALUES ('10005', '研发部', '10001', '5748354935250', 3, '研发部', '2021-07-19 10:55:32', '5748354935248', '2022-03-24 16:25:46', '5748354935248');
-INSERT INTO `sys_department` VALUES ('10010', '市场部', '10001', '5748354935252', 2, '市场部', '2021-07-29 10:22:18', '5748354935248', '2021-07-29 10:25:42', '5748354935248');
-INSERT INTO `sys_department` VALUES ('10011', '软件组', '10005', '5748354935253', 1, '软件组', '2021-07-29 10:58:19', '5748354935248', '2021-07-29 14:36:51', '5748354935248');
+INSERT INTO `sys_department` VALUES ('20001', 'ABC技术有限公司', '', '5748354935248', 1, 'ABC技术有限公司', '2021-07-05 15:20:44', '5748354935248', '2021-07-05 15:20:47', '5748354935248');
+INSERT INTO `sys_department` VALUES ('20005', '研发部', '20001', '5748354935250', 3, '研发部', '2021-07-19 10:55:32', '5748354935248', '2022-03-24 16:25:46', '5748354935248');
+INSERT INTO `sys_department` VALUES ('20010', '市场部', '20001', '5748354935252', 2, '市场部', '2021-07-29 10:22:18', '5748354935248', '2021-07-29 10:25:42', '5748354935248');
+INSERT INTO `sys_department` VALUES ('20011', '软件组', '20005', '5748354935253', 1, '软件组', '2021-07-29 10:58:19', '5748354935248', '2021-07-29 14:36:51', '5748354935248');
 
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
@@ -62,8 +62,8 @@ CREATE TABLE `sys_role` (
   `description` varchar(255) NOT NULL COMMENT '角色描述',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
-  `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
-  `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
+  `update_at` datetime COMMENT '最后一次修改时间',
+  `update_user` varchar(20) COMMENT '最后一次修改人',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 角色表';
 
@@ -86,8 +86,8 @@ CREATE TABLE `sys_permission` (
   `permission_type` tinyint(1) NOT NULL DEFAULT 0 COMMENT '菜单类型 [ 0:目录 1:菜单 2:功能/按钮/操作 ]',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
-  `update_at` datetime NOT NULL COMMENT '最后一次修改时间',
-  `update_user` varchar(20) NOT NULL COMMENT '最后一次修改人',
+  `update_at` datetime COMMENT '最后一次修改时间',
+  `update_user` varchar(20) COMMENT '最后一次修改人',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 菜单权限表';
 
@@ -100,7 +100,7 @@ INSERT INTO `sys_permission` VALUES ('10055', '设备备件', '10002', 'ArticlSp
 INSERT INTO `sys_permission` VALUES ('10001', '系统管理', '', 'Setting', '/setting', 'Layout', '/setting/user', 'el-icon-setting', 9, 0, '2021-07-09 12:30:00', '5748354935248', '2021-11-18 09:08:28', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10004', '用户管理', '10001', 'SettingUser', '/setting/user', 'views/user/index', '', '', 1, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:34:56', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10005', '角色管理', '10001', 'SettingRole', '/settting/role', 'views/role/index', '', '', 2, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:30', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10007', '部门管理', '10001', 'SysDepartment', '/setting/department', 'views/department/index', '', '', 3, 1, '2021-07-09 12:30:00', '5748354935248', '2021-07-27 16:46:09', '5748354935248');
+INSERT INTO `sys_permission` VALUES ('10007', '部门管理', '10001', 'SettingDepartment', '/setting/department', 'views/department/index', '', '', 3, 1, '2021-07-09 12:30:00', '5748354935248', '2021-07-27 16:46:09', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10003', '权限管理', '10001', 'SettingMenu', '/setting/permission', 'views/permission/index', '', '', 4, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:18', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10008', '图标管理', '10001', 'SettingIcon', '/setting/icon', 'views/icon/index', '', '', 5, 1, '2021-07-09 12:30:00', '5748354935248', '2022-03-24 16:35:18', '5748354935248');
 
@@ -119,19 +119,11 @@ INSERT INTO `sys_permission` VALUES ('10084', '视图', '10005', '', '/setting/r
 INSERT INTO `sys_permission` VALUES ('10074', '新增', '10005', '', '/setting/role/post', '', '', '', 2, 2, '2022-03-25 13:56:51', '5748354935248', '2022-03-25 14:10:33', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10075', '修改', '10005', '', '/setting/role/patch', '', '', '', 3, 2, '2022-03-25 13:57:25', '5748354935248', '2022-03-25 13:57:25', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10076', '删除', '10005', '', '/setting/role/delete', '', '', '', 4, 2, '2022-03-25 13:57:43', '5748354935248', '2022-03-25 13:57:43', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10077', '修改权限', '10005', '', '/setting/role/permission', '', '', '', 5, 2, '2022-03-25 13:58:03', '5748354935248', '2022-03-25 13:58:03', '5748354935248');
 
 INSERT INTO `sys_permission` VALUES ('10085', '视图', '10007', '', '/setting/department/get', '', '', '', 1, 2, '2022-03-25 14:07:13', '5748354935248', '2022-03-25 14:10:40', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10078', '新增', '10007', '', '/setting/department/post', '', '', '', 2, 2, '2022-03-25 13:58:58', '5748354935248', '2022-03-25 14:13:01', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10079', '修改', '10007', '', '/setting/department/patch', '', '', '', 3, 2, '2022-03-25 13:59:08', '5748354935248', '2022-03-25 13:59:08', '5748354935248');
 INSERT INTO `sys_permission` VALUES ('10080', '删除', '10007', '', '/setting/department/delete', '', '', '', 4, 2, '2022-03-25 13:59:22', '5748354935248', '2022-03-25 13:59:22', '5748354935248');
-INSERT INTO `sys_permission` VALUES ('10081', '修改权限', '10007','', '/setting/department/permission', '', '', '', 5, 2, '2022-03-25 14:00:05', '5748354935248', '2022-03-25 14:00:05', '5748354935248');
-
-DROP TABLE IF EXISTS `sys_department_permission`;
-CREATE TABLE `sys_department_permission` (
-  `department_id` varchar(20) NOT NULL COMMENT '部门ID',
-  `permission_id` varchar(20) NOT NULL COMMENT '菜单ID'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 部门和菜单权限表';
 
 DROP TABLE IF EXISTS `sys_role_permission`;
 CREATE TABLE `sys_role_permission` (
@@ -159,11 +151,9 @@ INSERT INTO `sys_role_permission` VALUES ('10001', '10073');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10074');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10075');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10076');
-INSERT INTO `sys_role_permission` VALUES ('10001', '10077');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10078');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10079');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10080');
-INSERT INTO `sys_role_permission` VALUES ('10001', '10081');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10082');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10083');
 INSERT INTO `sys_role_permission` VALUES ('10001', '10084');
@@ -205,7 +195,16 @@ CREATE TABLE `sys_user_department` (
   `department_id` varchar(20) NOT NULL COMMENT '部门ID'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 用户和部门表';
 
-INSERT INTO `sys_user_department` VALUES ('5748354935248', '10001');
-INSERT INTO `sys_user_department` VALUES ('5748354935250', '10005');
-INSERT INTO `sys_user_department` VALUES ('5748354935253', '10010');
-INSERT INTO `sys_user_department` VALUES ('5748354935252', '10011');
+INSERT INTO `sys_user_department` VALUES ('5748354935248', '20010');
+INSERT INTO `sys_user_department` VALUES ('5748354935249', '20010');
+INSERT INTO `sys_user_department` VALUES ('5748354935250', '20010');
+INSERT INTO `sys_user_department` VALUES ('5748354935251', '20010');
+INSERT INTO `sys_user_department` VALUES ('5748354935252', '20011');
+INSERT INTO `sys_user_department` VALUES ('5748354935253', '20011');
+INSERT INTO `sys_user_department` VALUES ('5749496392112', '20011');
+
+DROP TABLE IF EXISTS `sys_department_permission`;
+CREATE TABLE `sys_department_permission` (
+  `department_id` varchar(20) NOT NULL COMMENT '部门ID',
+  `permission_id` varchar(20) NOT NULL COMMENT '菜单ID'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='[ 权限 ] 部门和菜单权限表';

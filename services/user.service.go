@@ -3,7 +3,6 @@ package services
 import (
     "context"
     "database/sql"
-    "fmt"
     "strings"
     "time"
 
@@ -78,12 +77,15 @@ func (us *UserServiceImpl) CreateUser(user *models.User) error {
     }
 
     // 插入用户角色关联
+    if len(user.Role) == 0 {
+        return nil
+    }
+
     for _, item := range user.Role {
         role = append(role, "('"+id+"', '"+item+"')")
     }
     sql = `insert into sys_user_role values ` + strings.Join(role, ",")
 
-    fmt.Println(sql)
     _, err = us.mysqlClient.ExecContext(us.ctx, sql)
     if err != nil {
         return err
@@ -133,7 +135,7 @@ func (us *UserServiceImpl) GetUser(id *string) (*models.UserResponse, error) {
         user.Role = roles
     }
 
-    //获取用户关联菜单树
+    //获取用户关联菜单
     menuTree, err := us.GetMenuByUserId(id)
     if err != nil {
         return nil, err
@@ -205,6 +207,10 @@ func (us *UserServiceImpl) UpdateUser(user *models.User) error {
     }
 
     // 更新用户角色关联
+    if len(user.Role) == 0 {
+        return nil
+    }
+
     for _, item := range user.Role {
         role = append(role, "('"+id+"', '"+item+"')")
     }
@@ -365,7 +371,7 @@ func (us *UserServiceImpl) GetRoleByUserId(id *string) ([]models.SimpleRole, err
     return roles, nil
 }
 
-/* 获取用户菜单 */
+/* 获取用户关联菜单 */
 func (us *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, error) {
     var menus []*models.MenuTree
 
@@ -405,7 +411,7 @@ func (us *UserServiceImpl) GetMenuByUserId(id *string) ([]*models.MenuTree, erro
     return menuTree, nil
 }
 
-/* 获取用户按钮 */
+/* 获取用户关联按钮 */
 func (us *UserServiceImpl) GetButtonByUserId(id *string) ([]models.Button, error) {
     var buttons []models.Button
     sql := `

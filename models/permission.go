@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+type SimplePermission struct {
+    ID    string `json:"id"`
+    Title string `json:"title"`
+}
+
 type Permission struct {
     ID         string     `json:"id"`
     ParentID   string     `json:"parent_id"`
@@ -23,12 +28,12 @@ type PermissionTree struct {
     ID         string            `json:"id"`
     ParentID   string            `json:"parent_id"`
     Title      string            `json:"title"`
-    Name       string            `json:"name"`
-    Path       string            `json:"path"`
-    Component  string            `json:"component"`
-    Icon       string            `json:"icon"`
-    Redirect   string            `json:"redirect"`
-    SortID     int8              `json:"sort_id"`
+    Name       string            `json:"name,omitempty"`
+    Path       string            `json:"path,omitempty"`
+    Component  string            `json:"component,omitempty"`
+    Icon       string            `json:"icon,omitempty"`
+    Redirect   string            `json:"redirect,omitempty"`
+    SortID     int8              `json:"sort_id,omitempty"`
     Type       int8              `json:"permission_type"`
     CreateAt   *time.Time        `json:"create_at,omitempty"`
     CreateUser string            `json:"create_user,omitempty"`

@@ -83,9 +83,9 @@ func (dc *DepartmentController) GetDepartmentList(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, response)
 }
 
-/* 获取部门选择项 */
+/* 获取选择项 */
 func (dc *DepartmentController) GetDepartmentOption(ctx *gin.Context) {
-    departments, err := dc.DepartmentService.GetDepartmentTree()
+    departments, err := dc.DepartmentService.GetDepartmentOption()
     if err != nil {
         response := gin.H{
             "code":    10000,

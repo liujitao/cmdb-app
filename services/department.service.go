@@ -13,7 +13,7 @@ type DepartmentService interface {
     // UpdatDepartment(*models.Department) error
     // DeleteDepartment(*string) error
     GetDepartmentList(*string, *string, *string) (*int64, []*models.Department, error)
-    GetDepartmentTree() ([]*models.DepartmentTree, error)
+    GetDepartmentOption() ([]*models.DepartmentTree, error)
 }
 
 type DepartmentServiceImpl struct {
@@ -44,7 +44,7 @@ func (ds *DepartmentServiceImpl) DeleteDepartment(id *string) error {
     return nil
 }
 
-/* 获取部门列表 */
+/* 获取列表 */
 func (ds *DepartmentServiceImpl) GetDepartmentList(page *string, limit *string, sort *string) (*int64, []*models.Department, error) {
     var departments []*models.Department
     var sql string
@@ -62,7 +62,7 @@ func (ds *DepartmentServiceImpl) GetDepartmentList(page *string, limit *string, 
 
     sql = `
         select
-            a.id, a.department_name, a.create_at, a.create_user, a.update_at, a.update_user
+            a.id, a.department_name, a.description, a.create_at, a.create_user, a.update_at, a.update_user
         from sys_department a
         order by ` + *sort +
         ` limit ?, ?`
@@ -75,7 +75,7 @@ func (ds *DepartmentServiceImpl) GetDepartmentList(page *string, limit *string, 
     defer rows.Close()
     for rows.Next() {
         var department models.Department
-        rows.Scan(&department.ID, &department.Name, &department.CreateAt, &department.CreateUser, &department.UpdateAt, &department.UpdateUser)
+        rows.Scan(&department.ID, &department.Name, &department.Description, &department.CreateAt, &department.CreateUser, &department.UpdateAt, &department.UpdateUser)
 
         //获取用户关联角色
         users, err := ds.GetUserByDepartmentID(&department.ID)
@@ -93,32 +93,6 @@ func (ds *DepartmentServiceImpl) GetDepartmentList(page *string, limit *string, 
     }
 
     return total, departments, nil
-}
-
-/* 获取部门树 */
-func (ds *DepartmentServiceImpl) GetDepartmentTree() ([]*models.DepartmentTree, error) {
-    var departments []*models.DepartmentTree
-
-    sql := `select id, parent_id, department_name from sys_department order by department_name`
-
-    rows, err := ds.mysqlClient.QueryContext(ds.ctx, sql)
-    if err != nil {
-        return nil, err
-    }
-
-    defer rows.Close()
-    for rows.Next() {
-        department := &models.DepartmentTree{}
-        if err := rows.Scan(&department.ID, &department.ParentID, &department.Name); err != nil {
-            return nil, err
-        }
-        department.Children = nil
-        departments = append(departments, department)
-    }
-
-    // convert list To tree
-    departmentTree := utils.BuildDepartmentTree(departments, "")
-    return departmentTree, nil
 }
 
 /* 获取角色用户 */
@@ -148,4 +122,29 @@ func (rs *DepartmentServiceImpl) GetUserByDepartmentID(id *string) ([]models.Sim
     }
 
     return users, nil
+}
+
+/* 获取选择项 */
+func (ds *DepartmentServiceImpl) GetDepartmentOption() ([]*models.DepartmentTree, error) {
+    var departments []*models.DepartmentTree
+
+    sql := `select id, parent_id, department_name from sys_department order by parent_id, id`
+    rows, err := ds.mysqlClient.QueryContext(ds.ctx, sql)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+    for rows.Next() {
+        department := &models.DepartmentTree{}
+        if err := rows.Scan(&department.ID, &department.ParentID, &department.Name); err != nil {
+            return nil, err
+        }
+        department.Children = nil
+        departments = append(departments, department)
+    }
+
+    // convert list To tree
+    departmentTree := utils.BuildDepartmentTree(departments, "")
+    return departmentTree, nil
 }

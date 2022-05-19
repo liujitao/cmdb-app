@@ -116,6 +116,7 @@ func main() {
         roleRoute.PATCH("/update", roleController.UpdateRole)
         roleRoute.DELETE("/delete", roleController.DeleteRole)
         roleRoute.GET("/list", roleController.GetRoleList)
+        roleRoute.GET("/select", roleController.GetRoleOption)
     }
 
     roleRoute.Use(userController.AuthMiddleware())
@@ -147,6 +148,7 @@ func main() {
         permissionRoute.PATCH("/update", permissionController.UpdatePermission)
         permissionRoute.DELETE("/delete", permissionController.DeletePermission)
         permissionRoute.GET("/list", permissionController.GetPermissionList)
+        permissionRoute.GET("/select", permissionController.GetPermissionOption)
     }
 
     permissionRoute.Use(userController.AuthMiddleware())

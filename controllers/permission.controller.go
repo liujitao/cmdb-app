@@ -33,7 +33,7 @@ func (pc *PermissionController) DeletePermission(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
-/* 获取权限列表 */
+/* 获取列表 */
 func (pc *PermissionController) GetPermissionList(ctx *gin.Context) {
     permissions, err := pc.PermissionService.GetPermissionTree()
     if err != nil {
@@ -49,6 +49,27 @@ func (pc *PermissionController) GetPermissionList(ctx *gin.Context) {
     response := gin.H{
         "code":    20000,
         "message": "权限列表成功获取",
+        "data":    permissions,
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
+/* 获取选择项 */
+func (pc *PermissionController) GetPermissionOption(ctx *gin.Context) {
+    permissions, err := pc.PermissionService.GetPermissionOption()
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadRequest, response)
+        return
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "权限选择项成功获取",
         "data":    permissions,
     }
     ctx.JSON(http.StatusOK, response)
