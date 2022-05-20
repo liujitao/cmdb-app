@@ -132,6 +132,7 @@ func main() {
         departmentRoute.PATCH("/update", departmentController.UpdateDepartment)
         departmentRoute.DELETE("/delete", departmentController.DeleteDepartment)
         departmentRoute.GET("/list", departmentController.GetDepartmentList)
+        departmentRoute.GET("/tree", departmentController.GetDepartmentTree)
         departmentRoute.GET("/select", departmentController.GetDepartmentOption)
     }
 
@@ -148,6 +149,7 @@ func main() {
         permissionRoute.PATCH("/update", permissionController.UpdatePermission)
         permissionRoute.DELETE("/delete", permissionController.DeletePermission)
         permissionRoute.GET("/list", permissionController.GetPermissionList)
+        permissionRoute.GET("/tree", permissionController.GetPermissionTree)
         permissionRoute.GET("/select", permissionController.GetPermissionOption)
     }
 

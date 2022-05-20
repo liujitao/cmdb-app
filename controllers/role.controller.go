@@ -46,7 +46,7 @@ func (rc *RoleController) CreateRole(ctx *gin.Context) {
 
     response := gin.H{
         "code":    20000,
-        "message": "角色成功创建",
+        "message": "角色信息成功创建",
     }
     ctx.JSON(http.StatusOK, response)
 }
@@ -109,7 +109,7 @@ func (rc *RoleController) UpdateRole(ctx *gin.Context) {
 
     response := gin.H{
         "code":    20000,
-        "message": "角色成功更新",
+        "message": "角色信息成功更新",
     }
     ctx.JSON(http.StatusOK, response)
 }
@@ -139,7 +139,7 @@ func (rc *RoleController) DeleteRole(ctx *gin.Context) {
 
     response := gin.H{
         "code":    20000,
-        "message": "角色成功删除",
+        "message": "角色信息成功删除",
     }
     ctx.JSON(http.StatusOK, response)
 }

@@ -48,7 +48,7 @@ func (uc *UserController) CreateUser(ctx *gin.Context) {
 
     response := gin.H{
         "code":    20000,
-        "message": "用户成功创建",
+        "message": "用户信息成功创建",
     }
     ctx.JSON(http.StatusOK, response)
 }
@@ -119,7 +119,7 @@ func (uc *UserController) UpdateUser(ctx *gin.Context) {
 
     response := gin.H{
         "code":    20000,
-        "message": "用户成功更新",
+        "message": "用户信息成功更新",
     }
     ctx.JSON(http.StatusOK, response)
 }
@@ -149,7 +149,7 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 
     response := gin.H{
         "code":    20000,
-        "message": "用户成功删除",
+        "message": "用户信息成功删除",
     }
     ctx.JSON(http.StatusOK, response)
 }

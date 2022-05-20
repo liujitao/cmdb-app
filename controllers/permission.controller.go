@@ -54,6 +54,27 @@ func (pc *PermissionController) GetPermissionList(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, response)
 }
 
+/* 获取树 */
+func (pc *PermissionController) GetPermissionTree(ctx *gin.Context) {
+    permissions, err := pc.PermissionService.GetPermissionTree()
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadRequest, response)
+        return
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "权限树成功获取",
+        "data":    permissions,
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
 /* 获取选择项 */
 func (pc *PermissionController) GetPermissionOption(ctx *gin.Context) {
     permissions, err := pc.PermissionService.GetPermissionOption()

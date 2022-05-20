@@ -8,9 +8,7 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-/*
-认证中间件
-*/
+/* 认证中间件 */
 func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
     return func(ctx *gin.Context) {
         // 从header获取token
@@ -76,9 +74,7 @@ func (uc *UserController) AuthMiddleware() gin.HandlerFunc {
     }
 }
 
-/*
-用户登录
-*/
+/* 用户登录 */
 func (uc *UserController) LoginUser(ctx *gin.Context) {
     var user models.UserLogin
 
@@ -111,9 +107,7 @@ func (uc *UserController) LoginUser(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, response)
 }
 
-/*
-用户注销
-*/
+/* 用户注销 */
 func (uc *UserController) LogoutUser(ctx *gin.Context) {
     // 从header获取token
     header := ctx.GetHeader("Authorization")
@@ -167,9 +161,7 @@ func (uc *UserController) LogoutUser(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, response)
 }
 
-/*
-用户刷新
-*/
+/* 用户刷新 */
 func (uc *UserController) RefreshUser(ctx *gin.Context) {
     // 从header获取token
     header := ctx.GetHeader("Authorization")

@@ -239,6 +239,28 @@ func (rs *RoleServiceImpl) GetRoleList(page *string, limit *string, sort *string
     return total, roles, nil
 }
 
+/* 获取选择项 */
+func (rs *RoleServiceImpl) GetRoleOptions() ([]*models.SimpleRole, error) {
+    var roles []*models.SimpleRole
+
+    sql := `select id, role_name from sys_role order by role_name`
+    rows, err := rs.mysqlClient.QueryContext(rs.ctx, sql)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+    for rows.Next() {
+        role := &models.SimpleRole{}
+        if err := rows.Scan(&role.ID, &role.Name); err != nil {
+            return nil, err
+        }
+        roles = append(roles, role)
+    }
+
+    return roles, nil
+}
+
 /* 获取角色关联用户 */
 func (rs *RoleServiceImpl) GetUserByRoleID(id *string) ([]models.SimpleUser, error) {
     var users []models.SimpleUser
@@ -295,26 +317,4 @@ func (rs *RoleServiceImpl) GetPermissionByRoleID(id *string) ([]models.SimplePer
     }
 
     return permissions, nil
-}
-
-/* 获取选择项 */
-func (rs *RoleServiceImpl) GetRoleOptions() ([]*models.SimpleRole, error) {
-    var roles []*models.SimpleRole
-
-    sql := `select id, role_name from sys_role order by role_name`
-    rows, err := rs.mysqlClient.QueryContext(rs.ctx, sql)
-    if err != nil {
-        return nil, err
-    }
-
-    defer rows.Close()
-    for rows.Next() {
-        role := &models.SimpleRole{}
-        if err := rows.Scan(&role.ID, &role.Name); err != nil {
-            return nil, err
-        }
-        roles = append(roles, role)
-    }
-
-    return roles, nil
 }

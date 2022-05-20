@@ -1,10 +1,9 @@
 package controllers
 
 import (
+    "cmdb-app-mysql/models"
     "cmdb-app-mysql/services"
     "net/http"
-    "strconv"
-    "strings"
 
     "github.com/gin-gonic/gin"
 )
@@ -19,47 +18,133 @@ func NewDepartmentController(departmentSerivce services.DepartmentService) Depar
     }
 }
 
+/* 创建 */
 func (dc *DepartmentController) CreateDepartment(ctx *gin.Context) {
-    ctx.JSON(http.StatusOK, gin.H{"message": "ok"})
-}
-
-func (dc *DepartmentController) GetDepartment(ctx *gin.Context) {
-    ctx.JSON(http.StatusOK, gin.H{"message": "ok"})
-}
-
-func (dc *DepartmentController) UpdateDepartment(ctx *gin.Context) {
-    ctx.JSON(http.StatusOK, gin.H{"message": "ok"})
-}
-
-func (dc *DepartmentController) DeleteDepartment(ctx *gin.Context) {
-    ctx.JSON(http.StatusOK, gin.H{"message": "ok"})
-}
-
-/* 获取部门列表 */
-func (dc *DepartmentController) GetDepartmentList(ctx *gin.Context) {
-    var page, limit, sort string
-    page = ctx.DefaultQuery("page", "0")
-    if page != "0" {
-        p, _ := strconv.Atoi(page)
-        page = strconv.Itoa(p - 1)
-    }
-
-    limit = ctx.DefaultQuery("limit", "20")
-
-    sort = ctx.Query("sort")
-    if sort == "" {
-        sort = "id ASC"
-    } else {
-        s := strings.Split(sort, "")
-        if s[0] == "-" {
-            s = append(s[1:], " DESC")
-        } else {
-            s = append(s[1:], " ASC")
+    var department models.Department
+    if err := ctx.ShouldBindJSON(&department); err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "请求参数异常",
+            "error":   err.Error(),
         }
-        sort = strings.Join(s, "")
+        ctx.JSON(http.StatusBadGateway, response)
+        return
     }
 
-    total, departments, err := dc.DepartmentService.GetDepartmentList(&page, &limit, &sort)
+    err := dc.DepartmentService.CreateDepartment(&department)
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadGateway, response)
+        return
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "部门成功创建",
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
+/* 获取 */
+func (dc *DepartmentController) GetDepartment(ctx *gin.Context) {
+    id := ctx.Query("id")
+
+    if len(id) == 0 {
+        response := gin.H{
+            "code":    10000,
+            "message": "请求参数异常",
+        }
+        ctx.JSON(http.StatusBadGateway, response)
+        return
+    }
+
+    department, err := dc.DepartmentService.GetDepartment(&id)
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadGateway, response)
+        return
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "部门信息成功获取",
+        "data":    department,
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
+/* 更新 */
+func (dc *DepartmentController) UpdateDepartment(ctx *gin.Context) {
+    var department models.Department
+    if err := ctx.ShouldBindJSON(&department); err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "请求参数异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadGateway, response)
+        return
+    }
+
+    err := dc.DepartmentService.UpdateDepartment(&department)
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadGateway, response)
+        return
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "部门信息成功更新",
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
+/* 删除 */
+func (dc *DepartmentController) DeleteDepartment(ctx *gin.Context) {
+    id := ctx.Query("id")
+    if len(id) == 0 {
+        response := gin.H{
+            "code":    10000,
+            "message": "请求参数异常",
+        }
+        ctx.JSON(http.StatusBadGateway, response)
+        return
+    }
+
+    err := dc.DepartmentService.DeleteDepartment(&id)
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadGateway, response)
+        return
+    }
+
+    response := gin.H{
+        "code":    20000,
+        "message": "部门信息成功删除",
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
+/* 获取列表 */
+func (dc *DepartmentController) GetDepartmentList(ctx *gin.Context) {
+    departments, err := dc.DepartmentService.GetDepartmentList()
     if err != nil {
         response := gin.H{
             "code":    10000,
@@ -70,15 +155,31 @@ func (dc *DepartmentController) GetDepartmentList(ctx *gin.Context) {
         return
     }
 
-    data := gin.H{
-        "total": total,
-        "items": departments,
+    response := gin.H{
+        "code":    20000,
+        "message": "部门列表成功获取",
+        "data":    departments,
+    }
+    ctx.JSON(http.StatusOK, response)
+}
+
+/* 获取树 */
+func (dc *DepartmentController) GetDepartmentTree(ctx *gin.Context) {
+    departments, err := dc.DepartmentService.GetDepartmentTree()
+    if err != nil {
+        response := gin.H{
+            "code":    10000,
+            "message": "服务处理异常",
+            "error":   err.Error(),
+        }
+        ctx.JSON(http.StatusBadRequest, response)
+        return
     }
 
     response := gin.H{
         "code":    20000,
-        "message": "部门列表成功获取",
-        "data":    data,
+        "message": "部门树成功获取",
+        "data":    departments,
     }
     ctx.JSON(http.StatusOK, response)
 }

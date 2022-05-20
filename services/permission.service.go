@@ -12,6 +12,7 @@ type PermissionService interface {
     GetPermission(*string) (*models.Permission, error)
     UpdatePermission(*models.Permission) error
     DeletePermission(*string) error
+    GetPermissionList() ([]*models.PermissionResponse, error)
     GetPermissionTree() ([]*models.PermissionTree, error)
     GetPermissionOption() ([]*models.PermissionTree, error)
 }
@@ -28,20 +29,30 @@ func NewPermissionService(mysqlClient *sql.DB, ctx context.Context) PermissionSe
     }
 }
 
+/* 创建 */
 func (ps *PermissionServiceImpl) CreatePermission(role *models.Permission) error {
     return nil
 }
 
+/* 获取 */
 func (ps *PermissionServiceImpl) GetPermission(id *string) (*models.Permission, error) {
     return nil, nil
 }
 
+/* 更新 */
 func (ps *PermissionServiceImpl) UpdatePermission(role *models.Permission) error {
     return nil
 }
 
+/* 删除 */
 func (ps *PermissionServiceImpl) DeletePermission(id *string) error {
     return nil
+}
+
+/* 获取列表 */
+func (ps *PermissionServiceImpl) GetPermissionList() ([]*models.PermissionResponse, error) {
+    var permissions []*models.PermissionResponse
+    return permissions, nil
 }
 
 /* 获取树 */
