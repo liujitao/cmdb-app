@@ -21,6 +21,7 @@ func NewDepartmentController(departmentSerivce services.DepartmentService) Depar
 /* 创建 */
 func (dc *DepartmentController) CreateDepartment(ctx *gin.Context) {
     var department models.Department
+
     if err := ctx.ShouldBindJSON(&department); err != nil {
         response := gin.H{
             "code":    10000,

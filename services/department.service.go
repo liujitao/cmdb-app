@@ -97,7 +97,7 @@ func (ds *DepartmentServiceImpl) DeleteDepartment(id *string) error {
     // 判断部门是否关联其他数据
 
     // 删除部门
-    sql := `delete from sys_role where id = ?`
+    sql := `delete from sys_department where id = ?`
     _, err := ds.mysqlClient.ExecContext(ds.ctx, sql, id)
     if err != nil {
         return err
