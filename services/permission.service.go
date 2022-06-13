@@ -5,11 +5,15 @@ import (
     "cmdb-app-mysql/utils"
     "context"
     "database/sql"
+    "strings"
+    "time"
+
+    "github.com/rs/xid"
 )
 
 type PermissionService interface {
     CreatePermission(*models.Permission) error
-    GetPermission(*string) (*models.Permission, error)
+    GetPermission(*string) (*models.PermissionResponse, error)
     UpdatePermission(*models.Permission) error
     DeletePermission(*string) error
     GetPermissionList() ([]*models.PermissionResponse, error)
@@ -30,28 +34,101 @@ func NewPermissionService(mysqlClient *sql.DB, ctx context.Context) PermissionSe
 }
 
 /* 创建 */
-func (ps *PermissionServiceImpl) CreatePermission(role *models.Permission) error {
+func (ps *PermissionServiceImpl) CreatePermission(permission *models.Permission) error {
+    sql := `
+    insert into sys_permission
+        (id, parent_id, title, name, path, component, redirect, icon, permission_type, sort_id, create_user, create_at)
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `
+
+    id := strings.ToUpper(xid.New().String())
+    create_at := time.Now().Local()
+
+    _, err := ps.mysqlClient.ExecContext(ps.ctx, sql, id, permission.ParentID, permission.Title, permission.Name, permission.Path, permission.Component, permission.Redirect, permission.Icon, permission.Type, permission.SortID, permission.CreateUser, create_at)
+    if err != nil {
+        return err
+    }
+
     return nil
 }
 
 /* 获取 */
-func (ps *PermissionServiceImpl) GetPermission(id *string) (*models.Permission, error) {
-    return nil, nil
+func (ps *PermissionServiceImpl) GetPermission(id *string) (*models.PermissionResponse, error) {
+    var permission models.PermissionResponse
+
+    sql := `
+    select
+        id, parent_id, title, name, path, component, redirect, icon, permission_type, sort_id, create_at, create_user, update_at, update_user
+    from sys_permission
+    where id = ?
+   `
+    row := ps.mysqlClient.QueryRowContext(ps.ctx, sql, id)
+
+    err := row.Scan(&permission.ID, &permission.ParentID, &permission.Title, &permission.Name, &permission.Path, &permission.Component, &permission.Redirect, &permission.Icon, &permission.Type, &permission.SortID, &permission.CreateAt, &permission.CreateUser, &permission.UpdateAt, &permission.UpdateUser)
+    if err != nil {
+        return nil, err
+    }
+
+    return &permission, nil
 }
 
 /* 更新 */
-func (ps *PermissionServiceImpl) UpdatePermission(role *models.Permission) error {
+func (ps *PermissionServiceImpl) UpdatePermission(permission *models.Permission) error {
+    sql := `
+    update sys_permission set
+        parent_id = ?, title = ?, name = ?, path = ?, component = ?, redirect = ?, icon = ?, permission_type = ?, sort_id = ?, update_at = ?, update_user = ?
+    where id = ?
+    `
+
+    update_at := time.Now().Local()
+    id := permission.ID
+
+    _, err := ps.mysqlClient.ExecContext(ps.ctx, sql, permission.ParentID, permission.Title, permission.Name, permission.Path, permission.Component, permission.Redirect, permission.Icon, permission.Type, permission.SortID, update_at, permission.UpdateUser, id)
+    if err != nil {
+        return err
+    }
+
     return nil
 }
 
 /* 删除 */
 func (ps *PermissionServiceImpl) DeletePermission(id *string) error {
+    // 判断权限是否关联其他数据
+
+    // 删除权限
+    sql := `delete from sys_permission where id = ?`
+    _, err := ps.mysqlClient.ExecContext(ps.ctx, sql, id)
+    if err != nil {
+        return err
+    }
+
     return nil
 }
 
 /* 获取列表 */
 func (ps *PermissionServiceImpl) GetPermissionList() ([]*models.PermissionResponse, error) {
     var permissions []*models.PermissionResponse
+
+    sql := `
+        select
+            id, parent_id, title, name, path, component, redirect, icon, permission_type, sort_id, create_at, create_user, update_at, update_user, create_at, create_user, update_at, update_user
+        from sys_permission
+        order by parent_id, id`
+
+    rows, err := ps.mysqlClient.QueryContext(ps.ctx, sql)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+    for rows.Next() {
+        var permission models.PermissionResponse
+        rows.Scan(&permission.ID, &permission.ParentID, &permission.Title, &permission.Name, &permission.Path, &permission.Component, &permission.Redirect, &permission.Icon, &permission.Type, &permission.SortID, &permission.CreateAt, &permission.CreateUser, &permission.UpdateAt, &permission.UpdateUser)
+
+        permissions = append(permissions, &permission)
+    }
+
     return permissions, nil
 }
 

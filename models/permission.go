@@ -16,8 +16,8 @@ type Permission struct {
     Component  string     `json:"component"`
     Icon       string     `json:"icon"`
     Redirect   string     `json:"redirect"`
-    SortID     int8       `json:"sort_id"`
     Type       int8       `json:"permission_type"`
+    SortID     int8       `json:"sort_id"`
     CreateAt   *time.Time `json:"create_at,omitempty"`
     CreateUser string     `json:"create_user,omitempty"`
     UpdateAt   *time.Time `json:"update_at,omitempty"`
@@ -33,8 +33,8 @@ type PermissionResponse struct {
     Component  string     `json:"component"`
     Icon       string     `json:"icon"`
     Redirect   string     `json:"redirect"`
-    SortID     int8       `json:"sort_id"`
     Type       int8       `json:"permission_type"`
+    SortID     int8       `json:"sort_id"`
     CreateAt   *time.Time `json:"create_at,omitempty"`
     CreateUser string     `json:"create_user,omitempty"`
     UpdateAt   *time.Time `json:"update_at,omitempty"`
@@ -50,12 +50,12 @@ type PermissionTree struct {
     Component  string            `json:"component,omitempty"`
     Icon       string            `json:"icon,omitempty"`
     Redirect   string            `json:"redirect,omitempty"`
-    SortID     int8              `json:"sort_id,omitempty"`
     Type       int8              `json:"permission_type"`
+    SortID     int8              `json:"sort_id,omitempty"`
     CreateAt   *time.Time        `json:"create_at,omitempty"`
-    CreateUser string            `json:"create_user,omitempty"`
+    CreateUser *string           `json:"create_user,omitempty"`
     UpdateAt   *time.Time        `json:"update_at,omitempty"`
-    UpdateUser string            `json:"update_user,omitempty"`
+    UpdateUser *string           `json:"update_user,omitempty"`
     Children   []*PermissionTree `json:"children,omitempty"`
 }
 

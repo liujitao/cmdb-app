@@ -92,7 +92,7 @@ CREATE TABLE `sys_permission` (
   `component` varchar(255) NOT NULL COMMENT '组件',
   `redirect` varchar(255) NOT NULL COMMENT '重定向',
   `icon` varchar(255) NOT NULL DEFAULT '#' COMMENT '菜单图标',
-  `sort_id` tinyint(4) NOT NULL COMMENT '排序',
+  `sort_id` tinyint(4) NOT NULL DEFAULT 0 COMMENT '排序',
   `permission_type` tinyint(1) NOT NULL DEFAULT 0 COMMENT '菜单类型 [ 0:目录 1:菜单 2:功能/按钮/操作 ]',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(20) NOT NULL COMMENT '创建人',
