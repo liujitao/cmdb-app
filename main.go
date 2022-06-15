@@ -96,16 +96,23 @@ func main() {
         userRoute.POST("/login", userController.LoginUser)
         userRoute.POST("/logout", userController.LogoutUser)
         userRoute.POST("/refresh", userController.RefreshUser)
-    }
 
-    userRoute.Use(userController.AuthMiddleware())
-    {
         userRoute.POST("/create", userController.CreateUser)
         userRoute.GET("/get", userController.GetUser)
         userRoute.PATCH("/update", userController.UpdateUser)
         userRoute.DELETE("/delete", userController.DeleteUser)
         userRoute.GET("/list", userController.GetUserList)
         userRoute.POST("/change_password", userController.ChangeUserPassword)
+    }
+
+    userRoute.Use(userController.AuthMiddleware())
+    {
+        // userRoute.POST("/create", userController.CreateUser)
+        // userRoute.GET("/get", userController.GetUser)
+        // userRoute.PATCH("/update", userController.UpdateUser)
+        // userRoute.DELETE("/delete", userController.DeleteUser)
+        // userRoute.GET("/list", userController.GetUserList)
+        // userRoute.POST("/change_password", userController.ChangeUserPassword)
     }
 
     // role 路由

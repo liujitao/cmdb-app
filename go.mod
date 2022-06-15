@@ -8,7 +8,6 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/rs/xid v1.4.0
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 )
 

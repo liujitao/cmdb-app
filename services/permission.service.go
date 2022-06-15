@@ -5,10 +5,9 @@ import (
     "cmdb-app-mysql/utils"
     "context"
     "database/sql"
-    "strings"
+    "fmt"
+    "strconv"
     "time"
-
-    "github.com/rs/xid"
 )
 
 type PermissionService interface {
@@ -35,18 +34,29 @@ func NewPermissionService(mysqlClient *sql.DB, ctx context.Context) PermissionSe
 
 /* 创建 */
 func (ps *PermissionServiceImpl) CreatePermission(permission *models.Permission) error {
-    sql := `
+    var id string
+    var sql string
+
+    // 获得最后记录的ID值
+    sql = `select id from sys_permission order by id DESC limit 1`
+    row := ps.mysqlClient.QueryRowContext(ps.ctx, sql)
+    if err := row.Scan(&id); err != nil {
+        return err
+    }
+
+    newID, _ := strconv.Atoi(id)
+    id = fmt.Sprintf("%06d", newID+1)
+    create_at := time.Now().Local()
+
+    // 插入权限
+    sql = `
     insert into sys_permission
         (id, parent_id, title, name, path, component, redirect, icon, permission_type, sort_id, create_user, create_at)
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
 
-    id := strings.ToUpper(xid.New().String())
-    create_at := time.Now().Local()
-
-    _, err := ps.mysqlClient.ExecContext(ps.ctx, sql, id, permission.ParentID, permission.Title, permission.Name, permission.Path, permission.Component, permission.Redirect, permission.Icon, permission.Type, permission.SortID, permission.CreateUser, create_at)
-    if err != nil {
+    if _, err := ps.mysqlClient.ExecContext(ps.ctx, sql, id, permission.ParentID, permission.Title, permission.Name, permission.Path, permission.Component, permission.Redirect, permission.Icon, permission.Type, permission.SortID, permission.CreateUser, create_at); err != nil {
         return err
     }
 

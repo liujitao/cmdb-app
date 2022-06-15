@@ -3,6 +3,8 @@ package services
 import (
     "context"
     "database/sql"
+    "fmt"
+    "strconv"
     "strings"
     "time"
 
@@ -10,7 +12,6 @@ import (
     "cmdb-app-mysql/utils"
 
     "github.com/go-redis/redis/v8"
-    "github.com/rs/xid"
 )
 
 type UserService interface {
@@ -44,24 +45,31 @@ func NewUserService(mysqlClient *sql.DB, redisClient *redis.Client, ctx context.
 
 /* 创建 */
 func (us *UserServiceImpl) CreateUser(user *models.User) error {
+    var id string
     var sql string
-    var err error
     var department, role []string
 
-    // 插入用户
-    sql = `
-    insert into sys_user
-        (id, user_name, password, mobile, email, gender, avatar, status, create_at, create_user)
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `
+    // 获得最后记录的ID值
+    sql = `select id from sys_user order by id DESC limit 1`
+    row := us.mysqlClient.QueryRowContext(us.ctx, sql)
+    if err := row.Scan(&id); err != nil {
+        return err
+    }
 
-    id := strings.ToUpper(xid.New().String())
+    newID, _ := strconv.Atoi(id)
+    id = fmt.Sprintf("%09d", newID+1)
     create_at := time.Now().Local()
     password := utils.HashPassword(models.DefaultPassword)
 
-    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id, user.Name, password, user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, create_at, user.CreateUser)
-    if err != nil {
+    // 插入用户
+    sql = `
+        insert into sys_user
+            (id, user_name, password, mobile, email, gender, avatar, status, create_at, create_user)
+        values
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+
+    if _, err := us.mysqlClient.ExecContext(us.ctx, sql, id, user.Name, password, user.Mobile, user.Email, user.Gender, user.Avatar, user.Status, create_at, user.CreateUser); err != nil {
         return err
     }
 
@@ -69,10 +77,9 @@ func (us *UserServiceImpl) CreateUser(user *models.User) error {
     for _, item := range user.Department {
         department = append(department, "('"+id+"', '"+item+"')")
     }
-    sql = `insert into sys_user_department values ` + strings.Join(department, ",")
 
-    _, err = us.mysqlClient.ExecContext(us.ctx, sql)
-    if err != nil {
+    sql = `insert into sys_user_department values ` + strings.Join(department, ",")
+    if _, err := us.mysqlClient.ExecContext(us.ctx, sql); err != nil {
         return err
     }
 
@@ -84,10 +91,9 @@ func (us *UserServiceImpl) CreateUser(user *models.User) error {
     for _, item := range user.Role {
         role = append(role, "('"+id+"', '"+item+"')")
     }
-    sql = `insert into sys_user_role values ` + strings.Join(role, ",")
 
-    _, err = us.mysqlClient.ExecContext(us.ctx, sql)
-    if err != nil {
+    sql = `insert into sys_user_role values ` + strings.Join(role, ",")
+    if _, err := us.mysqlClient.ExecContext(us.ctx, sql); err != nil {
         return err
     }
 

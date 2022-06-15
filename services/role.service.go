@@ -4,10 +4,10 @@ import (
     "cmdb-app-mysql/models"
     "context"
     "database/sql"
+    "fmt"
+    "strconv"
     "strings"
     "time"
-
-    "github.com/rs/xid"
 )
 
 type RoleService interface {
@@ -33,34 +33,45 @@ func NewRoleService(mysqlClient *sql.DB, ctx context.Context) RoleService {
 
 /* 创建 */
 func (rs *RoleServiceImpl) CreateRole(role *models.Role) error {
+    var id string
     var sql string
-    var err error
     var permission []string
+
+    // 获得最后记录的ID值
+    sql = `select id from sys_role order by id DESC limit 1`
+    row := rs.mysqlClient.QueryRowContext(rs.ctx, sql)
+    if err := row.Scan(&id); err != nil {
+        return err
+    }
+
+    newID, _ := strconv.Atoi(id)
+    id = fmt.Sprintf("%06d", newID+1)
+    create_at := time.Now().Local()
 
     // 插入角色
     sql = `
-    insert into sys_role
-        (id, role_name, description, create_at, create_user)
-    values
-        (?, ?, ?, ?, ?)
-    `
+        insert into sys_role
+            (id, role_name, description, create_at, create_user)
+        values
+            (?, ?, ?, ?, ?)
+        `
 
-    id := strings.ToUpper(xid.New().String())
-    create_at := time.Now().Local()
-
-    _, err = rs.mysqlClient.ExecContext(rs.ctx, sql, id, role.Name, role.Description, create_at, role.CreateUser)
-    if err != nil {
+    if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql, id, role.Name, role.Description, create_at, role.CreateUser); err != nil {
         return err
     }
 
     // 插入角色权限关联
+    if len(role.Permission) == 0 {
+        return nil
+    }
+
     for _, item := range role.Permission {
         permission = append(permission, "('"+id+"', '"+item+"')")
     }
+
     sql = `insert into sys_role_permission values ` + strings.Join(permission, ",")
 
-    _, err = rs.mysqlClient.ExecContext(rs.ctx, sql)
-    if err != nil {
+    if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql); err != nil {
         return err
     }
 
@@ -114,7 +125,6 @@ func (rs *RoleServiceImpl) GetRole(id *string) (*models.RoleResponse, error) {
 /* 更新 */
 func (rs *RoleServiceImpl) UpdateRole(role *models.Role) error {
     var sql string
-    var err error
     var permission []string
 
     sql = `
@@ -122,19 +132,16 @@ func (rs *RoleServiceImpl) UpdateRole(role *models.Role) error {
         role_name= ?, description = ?, update_at= ?, update_user= ?
     where id = ?
     `
-
-    update_at := time.Now().Local()
     id := role.ID
+    update_at := time.Now().Local()
 
-    _, err = rs.mysqlClient.ExecContext(rs.ctx, sql, role.Name, role.Description, update_at, role.UpdateUser, id)
-    if err != nil {
+    if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql, role.Name, role.Description, update_at, role.UpdateUser, id); err != nil {
         return err
     }
 
     // 删除角色权限关联
     sql = `delete from sys_role_permission where role_id = ?`
-    _, err = rs.mysqlClient.ExecContext(rs.ctx, sql, id)
-    if err != nil {
+    if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql, id); err != nil {
         return err
     }
 
@@ -146,10 +153,9 @@ func (rs *RoleServiceImpl) UpdateRole(role *models.Role) error {
     for _, item := range role.Permission {
         permission = append(permission, "('"+id+"', '"+item+"')")
     }
-    sql = `insert into sys_role_permission values ` + strings.Join(permission, ",")
 
-    _, err = rs.mysqlClient.ExecContext(rs.ctx, sql)
-    if err != nil {
+    sql = `insert into sys_role_permission values ` + strings.Join(permission, ",")
+    if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql); err != nil {
         return err
     }
 
@@ -159,19 +165,16 @@ func (rs *RoleServiceImpl) UpdateRole(role *models.Role) error {
 /* 删除 */
 func (rs *RoleServiceImpl) DeleteRole(id *string) error {
     var sql string
-    var err error
 
     // 删除用户部门角色关联
     sql = `delete from sys_role_permission where role_id = ?`
-    _, err = rs.mysqlClient.ExecContext(rs.ctx, sql, id)
-    if err != nil {
+    if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql, id); err != nil {
         return err
     }
 
     // 删除角色
     sql = `delete from sys_role where id = ?`
-    _, err = rs.mysqlClient.ExecContext(rs.ctx, sql, id)
-    if err != nil {
+    if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql, id); err != nil {
         return err
     }
 

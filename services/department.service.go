@@ -5,10 +5,9 @@ import (
     "cmdb-app-mysql/utils"
     "context"
     "database/sql"
-    "strings"
+    "fmt"
+    "strconv"
     "time"
-
-    "github.com/rs/xid"
 )
 
 type DepartmentService interface {
@@ -35,18 +34,29 @@ func NewDepartmentService(mysqlClient *sql.DB, ctx context.Context) DepartmentSe
 
 /* 创建 */
 func (ds *DepartmentServiceImpl) CreateDepartment(department *models.Department) error {
-    sql := `
+    var id string
+    var sql string
+
+    // 获得最后记录的ID值
+    sql = `select id from sys_department order by id DESC limit 1`
+    row := ds.mysqlClient.QueryRowContext(ds.ctx, sql)
+    if err := row.Scan(&id); err != nil {
+        return err
+    }
+
+    newID, _ := strconv.Atoi(id)
+    id = fmt.Sprintf("%06d", newID+1)
+    create_at := time.Now().Local()
+
+    // 插入部门
+    sql = `
     insert into sys_department
         (id, parent_id, department_name, description, sort_id, create_user, create_at)
     values
         (?, ?, ?, ?, ?, ?, ?)
     `
 
-    id := strings.ToUpper(xid.New().String())
-    create_at := time.Now().Local()
-
-    _, err := ds.mysqlClient.ExecContext(ds.ctx, sql, id, department.ParentID, department.Name, department.Description, department.SortID, department.CreateUser, create_at)
-    if err != nil {
+    if _, err := ds.mysqlClient.ExecContext(ds.ctx, sql, id, department.ParentID, department.Name, department.Description, department.SortID, department.CreateUser, create_at); err != nil {
         return err
     }
 
