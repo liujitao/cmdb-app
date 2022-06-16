@@ -168,20 +168,10 @@ INSERT INTO `sys_role_permission` VALUES ('110000', '120025');
 INSERT INTO `sys_role_permission` VALUES ('110000', '120026');
 INSERT INTO `sys_role_permission` VALUES ('110000', '120027');
 
-INSERT INTO `sys_role_permission` VALUES ('110001', '120001');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120002');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120003');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120004');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120005');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120006');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120007');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120008');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120009');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120010');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120011');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120016');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120020');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120024');
+INSERT INTO `sys_role_permission` VALUES ('110001', '120015');
+INSERT INTO `sys_role_permission` VALUES ('110001', '120018');
+INSERT INTO `sys_role_permission` VALUES ('110001', '120022');
+INSERT INTO `sys_role_permission` VALUES ('110001', '120026');
 
 INSERT INTO `sys_role_permission` VALUES ('110002', '120001');
 INSERT INTO `sys_role_permission` VALUES ('110002', '120003');
