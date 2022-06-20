@@ -4,6 +4,7 @@ import (
     "cmdb-app-mysql/models"
     "context"
     "database/sql"
+    "errors"
     "fmt"
     "strconv"
     "strings"
@@ -166,7 +167,18 @@ func (rs *RoleServiceImpl) UpdateRole(role *models.Role) error {
 func (rs *RoleServiceImpl) DeleteRole(id *string) error {
     var sql string
 
-    // 删除用户部门角色关联
+    // 判断是否存在用户关联
+    sql = `select count(*) from sys_user_role where role_id = ?`
+    row := rs.mysqlClient.QueryRowContext(rs.ctx, sql, id)
+    var count int64
+    if err := row.Scan(&count); err != nil {
+        return err
+    }
+    if count != 0 {
+        return errors.New("角色与用户存在关联，请先解除用户关联再删除")
+    }
+
+    // 删除角色权限关联
     sql = `delete from sys_role_permission where role_id = ?`
     if _, err := rs.mysqlClient.ExecContext(rs.ctx, sql, id); err != nil {
         return err

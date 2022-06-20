@@ -233,25 +233,22 @@ func (us *UserServiceImpl) UpdateUser(user *models.User) error {
 /* 删除 */
 func (us *UserServiceImpl) DeleteUser(id *string) error {
     var sql string
-    var err error
 
-    // 删除用户部门角色关联
+    // 删除用户角色关联
     sql = `delete from sys_user_role where user_id = ?`
-    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
-    if err != nil {
+    if _, err := us.mysqlClient.ExecContext(us.ctx, sql, id); err != nil {
         return err
     }
 
+    // 删除用户部门关联
     sql = `delete from sys_user_department where user_id = ?`
-    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
-    if err != nil {
+    if _, err := us.mysqlClient.ExecContext(us.ctx, sql, id); err != nil {
         return err
     }
 
     // 删除用户
     sql = `delete from sys_user where id = ?`
-    _, err = us.mysqlClient.ExecContext(us.ctx, sql, id)
-    if err != nil {
+    if _, err := us.mysqlClient.ExecContext(us.ctx, sql, id); err != nil {
         return err
     }
 

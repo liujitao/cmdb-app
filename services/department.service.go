@@ -5,6 +5,7 @@ import (
     "cmdb-app-mysql/utils"
     "context"
     "database/sql"
+    "errors"
     "fmt"
     "strconv"
     "time"
@@ -104,12 +105,34 @@ func (ds *DepartmentServiceImpl) UpdateDepartment(department *models.Department)
 
 /* 删除 */
 func (ds *DepartmentServiceImpl) DeleteDepartment(id *string) error {
-    // 判断部门是否关联其他数据
+    var sql string
+    var count int64
+
+    // 判断是否存在子部门
+    sql = ` select count(*) from sys_department where parent_id = ?`
+    row := ds.mysqlClient.QueryRowContext(ds.ctx, sql, id)
+    if err := row.Scan(&count); err != nil {
+        return err
+    }
+    if count != 0 {
+        return errors.New("当前部门存在子部门，请先解除子部门关联再删除")
+    }
+
+    // 判断是否有资产关联
+
+    // 判断是否存在用户关联
+    sql = `select count(*) from sys_user_department where department_id = ?`
+    row = ds.mysqlClient.QueryRowContext(ds.ctx, sql, id)
+    if err := row.Scan(&count); err != nil {
+        return err
+    }
+    if count != 0 {
+        return errors.New("部门与用户存在关联，请先解除用户关联再删除")
+    }
 
     // 删除部门
-    sql := `delete from sys_department where id = ?`
-    _, err := ds.mysqlClient.ExecContext(ds.ctx, sql, id)
-    if err != nil {
+    sql = `delete from sys_department where id = ?`
+    if _, err := ds.mysqlClient.ExecContext(ds.ctx, sql, id); err != nil {
         return err
     }
 
@@ -135,7 +158,7 @@ func (ds *DepartmentServiceImpl) GetDepartmentList() ([]*models.DepartmentRespon
         var department models.DepartmentResponse
         rows.Scan(&department.ID, &department.Name, &department.Description, &department.CreateAt, &department.CreateUser, &department.UpdateAt, &department.UpdateUser)
 
-        //获取用户关联角色
+        //获取部门关联用户
         users, err := ds.GetUserByDepartmentID(&department.ID)
         if err != nil {
             return nil, err
@@ -146,6 +169,8 @@ func (ds *DepartmentServiceImpl) GetDepartmentList() ([]*models.DepartmentRespon
         } else {
             department.User = users
         }
+
+        //获取部门关联设备
 
         departments = append(departments, &department)
     }
@@ -169,7 +194,23 @@ func (ds *DepartmentServiceImpl) GetDepartmentTree() ([]*models.DepartmentTree, 
         if err := rows.Scan(&department.ID, &department.ParentID, &department.Name, &department.Description, &department.SortID); err != nil {
             return nil, err
         }
+
+        //获取部门关联用户
+        users, err := ds.GetUserByDepartmentID(&department.ID)
+        if err != nil {
+            return nil, err
+        }
+
+        if users == nil {
+            department.User = []models.SimpleUser{}
+        } else {
+            department.User = users
+        }
+
+        //获取部门关联设备
+
         department.Children = nil
+
         departments = append(departments, department)
     }
 
@@ -194,7 +235,9 @@ func (ds *DepartmentServiceImpl) GetDepartmentOption() ([]*models.DepartmentTree
         if err := rows.Scan(&department.ID, &department.ParentID, &department.Name); err != nil {
             return nil, err
         }
+
         department.Children = nil
+
         departments = append(departments, department)
     }
 

@@ -5,6 +5,7 @@ import (
     "cmdb-app-mysql/utils"
     "context"
     "database/sql"
+    "errors"
     "fmt"
     "strconv"
     "time"
@@ -104,10 +105,32 @@ func (ps *PermissionServiceImpl) UpdatePermission(permission *models.Permission)
 
 /* 删除 */
 func (ps *PermissionServiceImpl) DeletePermission(id *string) error {
-    // 判断权限是否关联其他数据
+    var sql string
+    var count int64
+
+    // 判断是否存在子权限
+    sql = ` select count(*) from sys_permission where parent_id = ?`
+    row := ps.mysqlClient.QueryRowContext(ps.ctx, sql, id)
+    if err := row.Scan(&count); err != nil {
+        return err
+    }
+    if count != 0 {
+        return errors.New("当前权限存在子权限，请先解除子权限关联再删除")
+    }
+
+    // 判断是否存在角色关联
+    sql = `select count(*) from sys_role_permission where permission_id = ?`
+    row = ps.mysqlClient.QueryRowContext(ps.ctx, sql, id)
+
+    if err := row.Scan(&count); err != nil {
+        return err
+    }
+    if count != 0 {
+        return errors.New("权限与角色存在关联，请先解除角色关联再删除")
+    }
 
     // 删除权限
-    sql := `delete from sys_permission where id = ?`
+    sql = `delete from sys_permission where id = ?`
     _, err := ps.mysqlClient.ExecContext(ps.ctx, sql, id)
     if err != nil {
         return err
@@ -164,6 +187,7 @@ func (ps *PermissionServiceImpl) GetPermissionTree() ([]*models.PermissionTree, 
         if err := rows.Scan(&permission.ID, &permission.Title, &permission.ParentID, &permission.Name, &permission.Path, &permission.Component, &permission.Redirect, &permission.Icon, &permission.SortID, &permission.Type, &permission.CreateAt, &permission.CreateUser, &permission.UpdateAt, &permission.UpdateUser); err != nil {
             return nil, err
         }
+
         permission.Children = nil
         permissions = append(permissions, permission)
     }

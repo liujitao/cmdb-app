@@ -168,17 +168,6 @@ INSERT INTO `sys_role_permission` VALUES ('110000', '120025');
 INSERT INTO `sys_role_permission` VALUES ('110000', '120026');
 INSERT INTO `sys_role_permission` VALUES ('110000', '120027');
 
-INSERT INTO `sys_role_permission` VALUES ('110001', '120015');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120018');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120022');
-INSERT INTO `sys_role_permission` VALUES ('110001', '120026');
-
-INSERT INTO `sys_role_permission` VALUES ('110002', '120001');
-INSERT INTO `sys_role_permission` VALUES ('110002', '120003');
-INSERT INTO `sys_role_permission` VALUES ('110002', '120004');
-INSERT INTO `sys_role_permission` VALUES ('110002', '120005');
-INSERT INTO `sys_role_permission` VALUES ('110002', '120006');
-
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role` (
   `user_id` varchar(20) NOT NULL COMMENT '用户ID',

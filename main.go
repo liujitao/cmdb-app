@@ -63,7 +63,7 @@ func init() {
 
     log.Println("redis connection established")
 
-    // 构造业务
+    // 构造
     userService = services.NewUserService(mysqlClient, redisClient, ctx)
     userController = controllers.NewUserController(userService)
 
@@ -97,22 +97,22 @@ func main() {
         userRoute.POST("/logout", userController.LogoutUser)
         userRoute.POST("/refresh", userController.RefreshUser)
 
-        userRoute.POST("/create", userController.CreateUser)
-        userRoute.GET("/get", userController.GetUser)
-        userRoute.PATCH("/update", userController.UpdateUser)
-        userRoute.DELETE("/delete", userController.DeleteUser)
-        userRoute.GET("/list", userController.GetUserList)
-        userRoute.POST("/change_password", userController.ChangeUserPassword)
-    }
-
-    userRoute.Use(userController.AuthMiddleware())
-    {
         // userRoute.POST("/create", userController.CreateUser)
         // userRoute.GET("/get", userController.GetUser)
         // userRoute.PATCH("/update", userController.UpdateUser)
         // userRoute.DELETE("/delete", userController.DeleteUser)
         // userRoute.GET("/list", userController.GetUserList)
         // userRoute.POST("/change_password", userController.ChangeUserPassword)
+    }
+
+    userRoute.Use(userController.AuthMiddleware())
+    {
+        userRoute.POST("/create", userController.CreateUser)
+        userRoute.GET("/get", userController.GetUser)
+        userRoute.PATCH("/update", userController.UpdateUser)
+        userRoute.DELETE("/delete", userController.DeleteUser)
+        userRoute.GET("/list", userController.GetUserList)
+        userRoute.POST("/change_password", userController.ChangeUserPassword)
     }
 
     // role 路由
